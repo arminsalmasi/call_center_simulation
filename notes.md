@@ -1,5 +1,4 @@
-# Task 1
-## Design and Trade-offs:
+# Design and Trade-offs:
    The presented design of the call center simulation involves th following choices and trade-offs:
    1. Simplicity vs. Complexity:
      - The aim is simplicity, providing a basic implementation of the call center simulation.
@@ -16,12 +15,11 @@
      - Random parameters make the results less predictable, impacting precise analysis and scenario reproduction.
      - None random values are more convinient for testing the code. I ran to many issues during writing the unit test. Main issue is syncronization of the loops and calls during a test.
 ---------------------------------------------------------
-## Future Improvements:
+# Future Improvements:
    1. Advanced Call forwarding: Exploring more complex call distribution algorithms, considering factors like employee experinece, call priority, and historical data.
    2. Performance Optimization: Implementing optimizations to improve performance for handling a large number of calls and threads.
    3. Configurability: Enhancing the code to allow easy configuration of simulation parameters through user inputs or configuration files.
 ---------------------------------------------------------
-# Task 2
 To design a system that monitors the call center and includes basic functions like determining who is free and who is on a call, as well as allowing users to set their availability status (e.g., "on lunch" or "gone for the day"), we can consider the following approach:
 
 1. User Interface:
@@ -56,8 +54,7 @@ To design a system that monitors the call center and includes basic functions li
      - Secure Communication: Implement encryption mechanisms (e.g., SSL/TLS) to ensure secure communication between the client and the server.
      - Data Protection: Apply appropriate measures to protect sensitive data, including employee information and call records, adhering to data protection regulations and best practices.
 ---------------------------------------------------------
-# Task 3
-## performance, and reliability. Here are some test cases and stress situations that can be useful to consider:
+# performance, and reliability. Here are some test cases and stress situations that can be useful to consider:
   1. Error Handling and Logging Test Cases:
     - Test error scenarios, such as entering invalid data, and ensure the system handles errors and provides error messages.
     - Verify that the system logs critical events, errors, warnings, and user interactions accurately for auditing and troubleshooting purposes.
