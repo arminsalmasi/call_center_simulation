@@ -94,7 +94,7 @@ class CallStatisticsTest(unittest.TestCase):
         Assertions:
             - The fresher_counter and fresher_call_duration attributes are updated correctly.
         """
-        call_statistics = CallStatistics()
+        call_statistics = CallStatistics(1)
         call_statistics.add_fresher_call(0, 30)
         self.assertEqual(call_statistics.fresher_counter[0], 1)
         self.assertEqual(call_statistics.fresher_call_duration[0], 30)
