@@ -1,5 +1,33 @@
 import unittest
-from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
+from unittest.mock import patch
+from io import StringIO
+import sys
+from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index, main
+
+class MainTest(unittest.TestCase):
+    @patch('sys.argv', ['call_center_simulation.py', '8', '60', '1', '5', '2', '5', '10', '20'])
+    @patch('call_center_simulation.CallCenterSimulation.set')
+    @patch('call_center_simulation.CallCenterSimulation.run_simulation')
+    def test_main_success(self, mock_run, mock_set):
+        """
+        Test the successful execution of the main function.
+        It verifies that CallCenterSimulation.set and run_simulation are called.
+        """
+        main()
+        mock_set.assert_called_once_with(8, 60, (1, 5), (2, 5), (10, 20))
+        mock_run.assert_called_once()
+        print('main_success... passed\n')
+
+    @patch('sys.argv', ['call_center_simulation.py', '8', '60', '1', '5', '2', '5', '10', '20'])
+    @patch('call_center_simulation.CallCenterSimulation.run_simulation', side_effect=KeyboardInterrupt)
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_main_keyboard_interrupt(self, mock_stdout, mock_run):
+        """
+        Test the main function handles KeyboardInterrupt correctly.
+        """
+        main()
+        self.assertEqual(mock_stdout.getvalue(), "\nSimulation interrupted.\n")
+        # print is not executed because stdout is mocked, but we don't need it.
 
 class EmployeeTest(unittest.TestCase):
 
