@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
 
 class EmployeeTest(unittest.TestCase):
@@ -180,6 +181,29 @@ class CallStatisticsTest(unittest.TestCase):
 
 
     
+    def test_termination_message(self):
+        """
+        Test the termination_message method of the CallCenterSimulation class.
+
+        It ensures that the termination message is printed correctly.
+
+        Assertions:
+            - The correct statements are printed.
+        """
+        call_center_simulation = CallCenterSimulation()
+        project_manager = ProjectManager()
+        project_manager.set("project_manager", (1, 1))
+
+        with patch('builtins.print') as mock_print:
+            call_center_simulation.termination_message(project_manager)
+            mock_print.assert_any_call("project_manager is busy.")
+            mock_print.assert_any_call("All lines are busy. Please try again later.")
+            mock_print.assert_any_call("----------------------------------------------")
+
+        print('CallCenterSimulation.termination_message... passed\n')
+        pass
+
+
     def test_prtest_run_simulation(self):
 
         """
