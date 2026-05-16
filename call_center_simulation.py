@@ -262,9 +262,12 @@ class CallCenterSimulation:
         print("All lines are busy. Please try again later.")
         print("----------------------------------------------")
 
-    def run_simulation(self):
-        """Runs the call center simulation."""
-        # Initialize freshers, technical lead, and project manager
+    def _initialize_employees(self):
+        """Initializes the freshers, technical lead, and project manager.
+
+        Returns:
+            tuple: A tuple containing the list of freshers, the technical lead, and the project manager.
+        """
         freshers = []
         for i in range(self.number_of_freshers):
             fresher = Fresher()
@@ -274,6 +277,77 @@ class CallCenterSimulation:
         technical_lead.set("technical lead", self.min_max_call_duration)
         project_manager = ProjectManager()
         project_manager.set("project manager", self.min_max_call_duration)
+        return freshers, technical_lead, project_manager
+
+    def _process_call_wave(self, loop_number, freshers, fresher_counter, technical_lead, project_manager):
+        """Processes a single wave of calls.
+
+        Args:
+            loop_number (int): The current loop iteration number.
+            freshers (list): List of fresher instances.
+            fresher_counter (list): List of counts for calls handled by each fresher.
+            technical_lead (TechnicalLead): The technical lead instance.
+            project_manager (ProjectManager): The project manager instance.
+
+        Returns:
+            tuple: The updated technical lead and project manager instances.
+        """
+        number_of_calls = random.randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
+        print("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
+        print(f"Incoming calls: {number_of_calls}, loop: {loop_number}")
+        print("----------------------------------------------")
+        # Process individual calls
+        for call in range(number_of_calls):
+            # Find indices of free freshers, -1 if none
+            idx = find_free_fresher_index([not fresher.is_alive() for fresher in freshers])
+            print(f"Call {call + 1} is on top of the queue.")
+            print("----------------------")
+
+            if idx > -1:
+                # If any of the freshers ia available then assign the call to that fresher
+                # If the employee was in a call before then the thread should be re-initialized
+                self.assign_freshers(freshers, fresher_counter, idx)
+            else:
+                # If all freshers are busy then assign the call to the technical lead
+                if not technical_lead.is_alive():
+                    # If the employee was in a call before then the thread should be re-initialized
+                    technical_lead = self.assign_technical_lead(technical_lead)
+                else:
+                    # If the technical lead is busy then assign the call to the project manager
+                    if not project_manager.is_alive():
+                        # If the employee was in a call before then the thread should be re-initialized
+                        project_manager = self.assign_project_manager(technical_lead, project_manager)
+                    else:
+                        self.termination_message(project_manager)
+        return technical_lead, project_manager
+
+    def _finish_remaining_calls(self, freshers, technical_lead, project_manager):
+        """Waits for all remaining calls to finish by joining threads.
+
+        Args:
+            freshers (list): List of fresher instances.
+            technical_lead (TechnicalLead): The technical lead instance.
+            project_manager (ProjectManager): The project manager instance.
+        """
+        # Safty time margin to finish up the remaining calls
+        time.sleep(self.min_max_call_duration[1]+10)
+
+        # Finish up the remaining calls by joining all threads
+        while True:
+            for fresher in freshers:
+                if not(fresher.is_alive()) and fresher.was_called_before:
+                    fresher.join(timeout=2)
+            if not(technical_lead.is_alive()) and technical_lead.was_called_before:
+                    technical_lead.join(timeout=2)
+            if not(project_manager.is_alive()) and project_manager.was_called_before:
+                    project_manager.join(timeout=2)
+
+            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all([not(fresher.is_alive()) for fresher in freshers]):
+                break
+
+    def run_simulation(self):
+        """Runs the call center simulation."""
+        freshers, technical_lead, project_manager = self._initialize_employees()
 
         # Run the simulation
         end_time = time.time() + self.run_time
@@ -286,33 +360,9 @@ class CallCenterSimulation:
                 if time.time() >= end_time:
                     break
                 # Process call waves
-                number_of_calls = random.randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
-                print("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
-                print(f"Incoming calls: {number_of_calls}, loop: {loop_number}")
-                print("----------------------------------------------")
-                # Process individual calls
-                for call in range(number_of_calls):
-                    # Find indices of free freshers, -1 if none
-                    idx = find_free_fresher_index([not fresher.is_alive() for fresher in freshers])
-                    print(f"Call {call + 1} is on top of the queue.")
-                    print("----------------------")
-
-                    if idx > -1:
-                        # If any of the freshers ia available then assign the call to that fresher
-                        # If the employee was in a call before then the thread should be re-initialized 
-                        self.assign_freshers(freshers, fresher_counter, idx)
-                    else:
-                        # If all freshers are busy then assign the call to the technical lead
-                        if not technical_lead.is_alive():
-                            # If the employee was in a call before then the thread should be re-initialized 
-                            technical_lead = self.assign_technical_lead(technical_lead)
-                        else:
-                            # If the technical lead is busy then assign the call to the project manager
-                            if not project_manager.is_alive():
-                                # If the employee was in a call before then the thread should be re-initialized 
-                                project_manager = self.assign_project_manager(technical_lead, project_manager)
-                            else:
-                                self.termination_message(project_manager)
+                technical_lead, project_manager = self._process_call_wave(
+                    loop_number, freshers, fresher_counter, technical_lead, project_manager
+                )
 
                 # Wait for the next call wave
                 time_interval = random.randint(self.min_max_sleep_interval[0], self.min_max_sleep_interval[1])
@@ -322,22 +372,7 @@ class CallCenterSimulation:
                 time.sleep(time_interval)
                 loop_number += 1
 
-            
-            # Safty time margin to finish up the remaining calls
-            time.sleep(self.min_max_call_duration[1]+10)
-            
-            # Finish up the remaining calls by joining all threads
-            while True:
-                for fresher in freshers:
-                    if not(fresher.is_alive()) and fresher.was_called_before:
-                        fresher.join(timeout=2)
-                if not(technical_lead.is_alive()) and technical_lead.was_called_before:
-                        technical_lead.join(timeout=2)
-                if not(project_manager.is_alive()) and project_manager.was_called_before:
-                        project_manager.join(timeout=2)
-                
-                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all([not(fresher.is_alive()) for fresher in freshers]):
-                    break
+            self._finish_remaining_calls(freshers, technical_lead, project_manager)
 
             # Print call statistics
             self.call_statistics.print_summary()
