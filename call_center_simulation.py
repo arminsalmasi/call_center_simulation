@@ -293,7 +293,7 @@ class CallCenterSimulation:
                 # Process individual calls
                 for call in range(number_of_calls):
                     # Find indices of free freshers, -1 if none
-                    idx = find_free_fresher_index([not fresher.is_alive() for fresher in freshers])
+                    idx = next((i for i, fresher in enumerate(freshers) if not fresher.is_alive()), -1)
                     print(f"Call {call + 1} is on top of the queue.")
                     print("----------------------")
 
