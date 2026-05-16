@@ -210,11 +210,17 @@ class OtherTest(unittest.TestCase):
             - If no free fresher is available, it returns -1.
         """
 
-        test_list = [False, False, True, True, True, True, True, True]
+        class MockFresher:
+            def __init__(self, is_alive):
+                self._is_alive = is_alive
+            def is_alive(self):
+                return self._is_alive
+
+        test_list = [MockFresher(True), MockFresher(True), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False)]
         self.assertEqual(find_free_fresher_index(test_list),2)
-        test_list = [False, False, False, False, False, False, False, False]
+        test_list = [MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
         self.assertEqual(find_free_fresher_index(test_list),-1)
-        test_list = [True, True, False, False, False, False, False, False]
+        test_list = [MockFresher(False), MockFresher(False), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
         self.assertEqual(find_free_fresher_index(test_list),0)
         print('find_free_fresher_index... passed\n')
         pass
