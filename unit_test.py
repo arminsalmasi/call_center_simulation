@@ -1,4 +1,7 @@
 import unittest
+import io
+import sys
+from unittest.mock import patch
 from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
 
 class EmployeeTest(unittest.TestCase):
@@ -180,6 +183,36 @@ class CallStatisticsTest(unittest.TestCase):
 
 
     
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_print_summary(self, mock_stdout):
+        """
+        Test the print_summary method of the CallStatistics class.
+
+        It ensures that the summary is printed correctly based on the call statistics.
+
+        Assertions:
+            - The printed output matches the expected summary.
+        """
+        call_statistics = CallStatistics()
+        call_statistics.add_fresher_call(0, 30)
+        call_statistics.add_fresher_call(0, 20)
+        call_statistics.add_fresher_call(1, 40)
+        call_statistics.add_technical_lead_call(50)
+        call_statistics.add_project_manager_call(60)
+
+        call_statistics.print_summary()
+
+        expected_output = (
+            "----------------------------------------------\n"
+            "Summary:\n"
+            "fresher 1: answered 2 calls and spent 50 seconds on the phone.\n"
+            "fresher 2: answered 1 calls and spent 40 seconds on the phone.\n"
+            "Technical lead: answered 1 calls and spent 50 seconds on the phone.\n"
+            "Project manager: answered 1 calls and spent 60 seconds on the phone.\n"
+        )
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
+        sys.__stdout__.write('CallStatistics.print_summary... passed\n\n')
+
     def test_prtest_run_simulation(self):
 
         """
