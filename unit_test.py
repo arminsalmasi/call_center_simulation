@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
 
 class EmployeeTest(unittest.TestCase):
@@ -195,6 +196,29 @@ class CallStatisticsTest(unittest.TestCase):
         call_center_simulation.set(1, 1, (1, 1), (1, 1), (1, 1))
         self.assertTrue(call_center_simulation.run_simulation())
         print('CallCenterSimulation.run_simulation... passed\n')
+
+    @patch('sys.exit')
+    @patch('call_center_simulation.find_free_fresher_index')
+    def test_run_simulation_exception(self, mock_find, mock_exit):
+        """
+        Test the exception handling of the run_simulation method.
+
+        It ensures that if an exception is raised inside the simulation loop,
+        the exception is caught, a message is printed, and sys.exit(1) is called.
+        """
+        call_center_simulation = CallCenterSimulation()
+        call_center_simulation.set(1, 1, (1, 1), (1, 1), (1, 1))
+
+        mock_find.side_effect = Exception("Mocked exception")
+
+        # Run simulation
+        call_center_simulation.run_simulation()
+
+        # Assert sys.exit(1) is called
+        mock_exit.assert_called_once_with(1)
+        print('CallCenterSimulation.run_simulation_exception... passed\n')
+        pass
+
 
 class OtherTest(unittest.TestCase):
 
