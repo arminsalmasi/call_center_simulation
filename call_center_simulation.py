@@ -327,16 +327,13 @@ class CallCenterSimulation:
             time.sleep(self.min_max_call_duration[1]+10)
             
             # Finish up the remaining calls by joining all threads
+            employees = freshers + [technical_lead, project_manager]
             while True:
-                for fresher in freshers:
-                    if not(fresher.is_alive()) and fresher.was_called_before:
-                        fresher.join(timeout=2)
-                if not(technical_lead.is_alive()) and technical_lead.was_called_before:
-                        technical_lead.join(timeout=2)
-                if not(project_manager.is_alive()) and project_manager.was_called_before:
-                        project_manager.join(timeout=2)
+                for employee in employees:
+                    if not employee.is_alive() and employee.was_called_before:
+                        employee.join(timeout=2)
                 
-                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all([not(fresher.is_alive()) for fresher in freshers]):
+                if all(not employee.is_alive() for employee in employees):
                     break
 
             # Print call statistics
