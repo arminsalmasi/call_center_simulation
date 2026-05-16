@@ -15,7 +15,7 @@
         - Each employee has a method to simulate handling a call (run the tread).
  """
 # Imports
-import random
+import secrets
 import time
 import sys
 from threading import Thread, Lock
@@ -37,7 +37,7 @@ class Employee(Thread):
         Returns:
             int: Random number between the min and max call duration range.
         """
-        return random.randint(self.min_max_call_duration[0], self.min_max_call_duration[1])
+        return secrets.SystemRandom().randint(self.min_max_call_duration[0], self.min_max_call_duration[1])
 
     def set(self, name, min_max_call_duration):
         """Sets the employee attributes.
@@ -286,7 +286,7 @@ class CallCenterSimulation:
                 if time.time() >= end_time:
                     break
                 # Process call waves
-                number_of_calls = random.randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
+                number_of_calls = secrets.SystemRandom().randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
                 print("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
                 print(f"Incoming calls: {number_of_calls}, loop: {loop_number}")
                 print("----------------------------------------------")
@@ -315,7 +315,7 @@ class CallCenterSimulation:
                                 self.termination_message(project_manager)
 
                 # Wait for the next call wave
-                time_interval = random.randint(self.min_max_sleep_interval[0], self.min_max_sleep_interval[1])
+                time_interval = secrets.SystemRandom().randint(self.min_max_sleep_interval[0], self.min_max_sleep_interval[1])
                 print(f"Waiting for {time_interval} seconds before initiating the next wave of calls.")
                 print("----------------------------------------------")
 
