@@ -18,8 +18,11 @@
 import random
 import time
 import sys
+import logging
 from threading import Thread, Lock
 import argparse
+
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Employee(Thread):
     """Base class representing an employee in the call center.
@@ -343,7 +346,8 @@ class CallCenterSimulation:
             self.call_statistics.print_summary()
 
         except Exception as e:
-            print(f"An error occurred during the call center simulation: {str(e)}")
+            logging.error("Exception occurred during the call center simulation", exc_info=True)
+            print("An unexpected error occurred during the call center simulation. Please check the logs.")
             sys.exit(1)
         return True
 
