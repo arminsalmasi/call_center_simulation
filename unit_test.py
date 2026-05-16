@@ -89,15 +89,15 @@ class CallStatisticsTest(unittest.TestCase):
         """
         Test the add_fresher_call method of the CallStatistics class.
 
-        It ensures that the fresher_counter and fresher_call_duration attributes are updated correctly.
+        It ensures that the fresher_statistics attribute is updated correctly.
 
         Assertions:
-            - The fresher_counter and fresher_call_duration attributes are updated correctly.
+            - The fresher_statistics attribute is updated correctly.
         """
         call_statistics = CallStatistics()
         call_statistics.add_fresher_call(0, 30)
-        self.assertEqual(call_statistics.fresher_counter[0], 1)
-        self.assertEqual(call_statistics.fresher_call_duration[0], 30)
+        self.assertEqual(call_statistics.fresher_statistics[0]['counter'], 1)
+        self.assertEqual(call_statistics.fresher_statistics[0]['call_duration'], 30)
         print('CallStatistics.add_fresher_call,... passed\n')
         pass
 
@@ -145,11 +145,11 @@ class CallStatisticsTest(unittest.TestCase):
         """
         Test the assign_freshers method of the CallCenterSimulation class.
 
-        It ensures that the fresher_counter, fresher_call_duration, technical_lead_counter, technical_lead_call_duration,
+        It ensures that the fresher_statistics, technical_lead_counter, technical_lead_call_duration,
         and lock attributes are updated correctly.
 
         Assertions:
-            - The fresher_counter, fresher_call_duration, technical_lead_counter, technical_lead_call_duration,
+            - The fresher_statistics, technical_lead_counter, technical_lead_call_duration,
               and lock attributes are updated correctly.
         """
         call_center_simulation = CallCenterSimulation()
@@ -157,7 +157,7 @@ class CallStatisticsTest(unittest.TestCase):
         
         fresher = Fresher()
         fresher.set(f"fresher {1}", call_center_simulation.min_max_call_duration)
-        call_center_simulation.assign_freshers([fresher],[0],0)
+        call_center_simulation.assign_freshers([fresher],0)
 
         technical_lead = TechnicalLead()
         technical_lead.set(f"technical_lead", call_center_simulation.min_max_call_duration)
@@ -167,8 +167,8 @@ class CallStatisticsTest(unittest.TestCase):
         project_manager.set(f"project_manager", call_center_simulation.min_max_call_duration)
         call_center_simulation.assign_project_manager(technical_lead,project_manager)
         
-        self.assertEqual(call_center_simulation.call_statistics.fresher_counter,[1])
-        self.assertEqual(call_center_simulation.call_statistics.fresher_call_duration,[1])
+        self.assertEqual(call_center_simulation.call_statistics.fresher_statistics[0]['counter'],1)
+        self.assertEqual(call_center_simulation.call_statistics.fresher_statistics[0]['call_duration'],1)
         self.assertEqual(call_center_simulation.call_statistics.technical_lead_counter,1)
         self.assertEqual(call_center_simulation.call_statistics.technical_lead_call_duration,1)
         self.assertTrue(call_center_simulation.lock.acquire())
