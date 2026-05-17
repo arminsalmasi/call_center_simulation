@@ -182,6 +182,24 @@ class CallCenterSimulation:
             min_max_sleep_interval (tuple): Min and max sleep interval between call waves.
             min_max_call_duration (tuple): Min and max duration of calls.
         """
+        # Security Enhancement: Validate inputs to prevent DoS via excessive resources and ensure logical correctness
+        if not isinstance(number_of_freshers, int) or number_of_freshers < 0 or number_of_freshers > 10000:
+            raise ValueError("number_of_freshers must be an integer between 0 and 10000")
+        if not isinstance(run_time, (int, float)) or run_time < 0:
+            raise ValueError("run_time must be a non-negative number")
+
+        for name, val in [("min_max_calls_per_wave", min_max_calls_per_wave),
+                          ("min_max_sleep_interval", min_max_sleep_interval),
+                          ("min_max_call_duration", min_max_call_duration)]:
+            if not isinstance(val, tuple) or len(val) != 2:
+                raise ValueError(f"{name} must be a tuple of length 2")
+            if not isinstance(val[0], (int, float)) or not isinstance(val[1], (int, float)):
+                 raise ValueError(f"{name} must contain numerical values")
+            if val[0] < 0 or val[1] < 0:
+                raise ValueError(f"{name} must contain non-negative values")
+            if val[0] > val[1]:
+                raise ValueError(f"{name} minimum cannot be greater than maximum")
+
         self.number_of_freshers = number_of_freshers
         self.run_time = run_time
         self.min_max_calls_per_wave = min_max_calls_per_wave
@@ -390,6 +408,10 @@ def main():
         # Run the simulation
         call_center_simulation.run_simulation()
 
+    except ValueError as e:
+        # Security Enhancement: Handle validation errors securely without leaking internal stack traces.
+        print(f"\nConfiguration error: {e}")
+        sys.exit(1)
     except KeyboardInterrupt:
         print("\nSimulation interrupted.")
 
