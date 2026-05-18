@@ -370,6 +370,18 @@ def main():
         # Parse the arguments
         args = parser.parse_args()
 
+        # Input validation
+        if args.number_of_freshers < 1:
+            parser.error("number_of_freshers must be at least 1")
+        if args.run_time < 1:
+            parser.error("run_time must be at least 1")
+        if args.min_calls_per_wave < 0 or args.min_calls_per_wave > args.max_calls_per_wave:
+            parser.error("min_calls_per_wave must be >= 0 and <= max_calls_per_wave")
+        if args.min_sleep_interval < 0 or args.min_sleep_interval > args.max_sleep_interval:
+            parser.error("min_sleep_interval must be >= 0 and <= max_sleep_interval")
+        if args.min_call_duration < 0 or args.min_call_duration > args.max_call_duration:
+            parser.error("min_call_duration must be >= 0 and <= max_call_duration")
+
         # Set the parameters of the call center simulation
         number_of_freshers = args.number_of_freshers
         run_time = args.run_time
