@@ -220,6 +220,12 @@ class CallStatisticsTest(unittest.TestCase):
         self.assertTrue(call_center_simulation.run_simulation())
         print('CallCenterSimulation.run_simulation... passed\n')
 
+class MockFresher:
+    def __init__(self, alive):
+        self.alive = alive
+    def is_alive(self):
+        return self.alive
+
 class OtherTest(unittest.TestCase):
 
     def test_find_free_fresher_index(self):
@@ -234,11 +240,13 @@ class OtherTest(unittest.TestCase):
             - If no free fresher is available, it returns -1.
         """
 
-        test_list = [False, False, True, True, True, True, True, True]
+        # In the real code, not fresher.is_alive() means it is free.
+        # So test_list values (True means free) should map to MockFresher(not True) -> MockFresher(False)
+        test_list = [MockFresher(True), MockFresher(True), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False)]
         self.assertEqual(find_free_fresher_index(test_list),2)
-        test_list = [False, False, False, False, False, False, False, False]
+        test_list = [MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
         self.assertEqual(find_free_fresher_index(test_list),-1)
-        test_list = [True, True, False, False, False, False, False, False]
+        test_list = [MockFresher(False), MockFresher(False), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
         self.assertEqual(find_free_fresher_index(test_list),0)
         print('find_free_fresher_index... passed\n')
         pass
