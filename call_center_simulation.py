@@ -380,6 +380,22 @@ def main():
         min_call_duration = args.min_call_duration
         max_call_duration = args.max_call_duration
 
+        if number_of_freshers < 0 or number_of_freshers > 10000:
+            print("Error: number_of_freshers must be between 0 and 10000.")
+            sys.exit(1)
+        if run_time < 0:
+            print("Error: run_time must be non-negative.")
+            sys.exit(1)
+        if min_calls_per_wave < 0 or max_calls_per_wave < 0 or min_calls_per_wave > max_calls_per_wave:
+            print("Error: calls_per_wave must be non-negative and min <= max.")
+            sys.exit(1)
+        if min_sleep_interval < 0 or max_sleep_interval < 0 or min_sleep_interval > max_sleep_interval:
+            print("Error: sleep_interval must be non-negative and min <= max.")
+            sys.exit(1)
+        if min_call_duration < 0 or max_call_duration < 0 or min_call_duration > max_call_duration:
+            print("Error: call_duration must be non-negative and min <= max.")
+            sys.exit(1)
+
         # Create and set up the call center simulation
         call_center_simulation = CallCenterSimulation()
         min_max_calls_per_wave = (min_calls_per_wave, max_calls_per_wave)
@@ -392,6 +408,10 @@ def main():
 
     except KeyboardInterrupt:
         print("\nSimulation interrupted.")
+    except Exception as e:
+        logging.error("Unhandled exception in main", exc_info=True)
+        print("An error occurred. Check logs for details.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

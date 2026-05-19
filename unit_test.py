@@ -243,6 +243,20 @@ class OtherTest(unittest.TestCase):
         print('find_free_fresher_index... passed\n')
         pass
 
+class CLISecurityTest(unittest.TestCase):
+    @patch('sys.argv', ['call_center_simulation.py', '-1', '10', '1', '5', '1', '5', '10', '20'])
+    def test_negative_freshers(self):
+        with self.assertRaises(SystemExit) as cm:
+            from call_center_simulation import main
+            main()
+        self.assertEqual(cm.exception.code, 1)
+
+    @patch('sys.argv', ['call_center_simulation.py', '10', '10', '1', '5', '1', '5', '20', '10'])
+    def test_invalid_call_duration_range(self):
+        with self.assertRaises(SystemExit) as cm:
+            from call_center_simulation import main
+            main()
+        self.assertEqual(cm.exception.code, 1)
 
 if __name__ == '__main__':
     unittest.main()
