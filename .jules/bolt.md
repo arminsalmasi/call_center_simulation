@@ -1,0 +1,3 @@
+## 2024-05-19 - Avoid eager thread state evaluation
+**Learning:** Eagerly evaluating `is_alive()` on lists of thread-based objects (like employees/freshers) introduces significant unnecessary overhead. List comprehensions evaluate all items, which forces the interpreter to check thread state for every object, even when we only need the first available one.
+**Action:** Always prefer lazy evaluation or short-circuiting loops (e.g., using generator expressions like `(not f.is_alive() for f in freshers)`) instead of list comprehensions when searching for available threads or using `all()`/`any()` functions. This avoids checking the state of all threads when only one or a few checks are required.
