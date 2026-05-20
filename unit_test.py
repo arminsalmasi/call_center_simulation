@@ -84,6 +84,31 @@ class CallStatisticsTest(unittest.TestCase):
         print('CallStatistics.set,... passed\n')
         pass
 
+    def test_set_input_validation(self):
+        """
+        Test the set method input validation to prevent DoS.
+        """
+        call_center_simulation = CallCenterSimulation()
+
+        # Test large number of freshers
+        with self.assertRaises(ValueError):
+            call_center_simulation.set(1000000, 60, (1, 5), (2, 5), (10, 20))
+
+        # Test negative freshers
+        with self.assertRaises(ValueError):
+            call_center_simulation.set(-1, 60, (1, 5), (2, 5), (10, 20))
+
+        # Test inverted range
+        with self.assertRaises(ValueError):
+            call_center_simulation.set(8, 60, (5, 1), (2, 5), (10, 20))
+
+        # Test wrong type
+        with self.assertRaises(ValueError):
+            call_center_simulation.set("eight", 60, (1, 5), (2, 5), (10, 20))
+
+        print('CallStatistics.test_set_input_validation,... passed\n')
+        pass
+
  
     def test_add_fresher_call(self):
 
