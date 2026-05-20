@@ -182,6 +182,21 @@ class CallCenterSimulation:
             min_max_sleep_interval (tuple): Min and max sleep interval between call waves.
             min_max_call_duration (tuple): Min and max duration of calls.
         """
+        if not (1 <= number_of_freshers <= 1000):
+            raise ValueError("number_of_freshers must be between 1 and 1000")
+        if run_time <= 0:
+            raise ValueError("run_time must be positive")
+
+        for name, limits in [("min_max_calls_per_wave", min_max_calls_per_wave),
+                             ("min_max_sleep_interval", min_max_sleep_interval),
+                             ("min_max_call_duration", min_max_call_duration)]:
+            if not isinstance(limits, tuple) or len(limits) != 2:
+                raise ValueError(f"{name} must be a tuple of length 2")
+            if limits[0] < 0 or limits[1] < 0:
+                raise ValueError(f"{name} bounds must be non-negative")
+            if limits[0] > limits[1]:
+                raise ValueError(f"{name} minimum cannot be greater than maximum")
+
         self.number_of_freshers = number_of_freshers
         self.run_time = run_time
         self.min_max_calls_per_wave = min_max_calls_per_wave
