@@ -1,0 +1,3 @@
+## 2024-05-18 - Eager evaluation overhead on Thread state checks
+**Learning:** In this simulation architecture where numerous Employee/Fresher threads are active, eagerly evaluating `.is_alive()` in list comprehensions causes significant blocking overhead because every single thread state must be queried before the result list is passed to evaluating functions like `all()` or short-circuiting locators.
+**Action:** Always prefer generator expressions `(...)` instead of list comprehensions `[...]` when passing iterables of `.is_alive()` checks to short-circuiting functions (like custom locators or `any()`/`all()`) to minimize thread state queries.
