@@ -355,9 +355,33 @@ class CallCenterSimulation:
                 if time.time() >= end_time:
                     break
                 # Process call waves
-                technical_lead, project_manager = self._process_call_wave(
-                    loop_number, freshers, fresher_counter, technical_lead, project_manager
-                )
+                number_of_calls = random.randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
+                print("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
+                print(f"Incoming calls: {number_of_calls}, loop: {loop_number}")
+                print("----------------------------------------------")
+                # Process individual calls
+                for call in range(number_of_calls):
+                    # Find indices of free freshers, -1 if none
+                    idx = next((i for i, fresher in enumerate(freshers) if not fresher.is_alive()), -1)
+                    print(f"Call {call + 1} is on top of the queue.")
+                    print("----------------------")
+
+                    if idx > -1:
+                        # If any of the freshers ia available then assign the call to that fresher
+                        # If the employee was in a call before then the thread should be re-initialized 
+                        self.assign_freshers(freshers, fresher_counter, idx)
+                    else:
+                        # If all freshers are busy then assign the call to the technical lead
+                        if not technical_lead.is_alive():
+                            # If the employee was in a call before then the thread should be re-initialized 
+                            technical_lead = self.assign_technical_lead(technical_lead)
+                        else:
+                            # If the technical lead is busy then assign the call to the project manager
+                            if not project_manager.is_alive():
+                                # If the employee was in a call before then the thread should be re-initialized 
+                                project_manager = self.assign_project_manager(technical_lead, project_manager)
+                            else:
+                                self.termination_message(project_manager)
 
                 # Wait for the next call wave
                 time_interval = secrets.SystemRandom().randint(self.min_max_sleep_interval[0], self.min_max_sleep_interval[1])
