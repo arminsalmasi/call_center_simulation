@@ -1,5 +1,7 @@
 import unittest
-from unittest.mock import patch, MagicMock
+import io
+import sys
+from unittest.mock import patch
 from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
 
 class EmployeeTest(unittest.TestCase):
@@ -211,28 +213,35 @@ class CallStatisticsTest(unittest.TestCase):
 
 
     
-    def test_termination_message(self):
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_print_summary(self, mock_stdout):
         """
-        Test the termination_message method of the CallCenterSimulation class.
+        Test the print_summary method of the CallStatistics class.
 
-        It ensures that the termination message is printed correctly.
+        It ensures that the summary is printed correctly based on the call statistics.
 
         Assertions:
-            - The correct statements are printed.
+            - The printed output matches the expected summary.
         """
-        call_center_simulation = CallCenterSimulation()
-        project_manager = ProjectManager()
-        project_manager.set("project_manager", (1, 1))
+        call_statistics = CallStatistics()
+        call_statistics.add_fresher_call(0, 30)
+        call_statistics.add_fresher_call(0, 20)
+        call_statistics.add_fresher_call(1, 40)
+        call_statistics.add_technical_lead_call(50)
+        call_statistics.add_project_manager_call(60)
 
-        with patch('builtins.print') as mock_print:
-            call_center_simulation.termination_message(project_manager)
-            mock_print.assert_any_call("project_manager is busy.")
-            mock_print.assert_any_call("All lines are busy. Please try again later.")
-            mock_print.assert_any_call("----------------------------------------------")
+        call_statistics.print_summary()
 
-        print('CallCenterSimulation.termination_message... passed\n')
-        pass
-
+        expected_output = (
+            "----------------------------------------------\n"
+            "Summary:\n"
+            "fresher 1: answered 2 calls and spent 50 seconds on the phone.\n"
+            "fresher 2: answered 1 calls and spent 40 seconds on the phone.\n"
+            "Technical lead: answered 1 calls and spent 50 seconds on the phone.\n"
+            "Project manager: answered 1 calls and spent 60 seconds on the phone.\n"
+        )
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
+        sys.__stdout__.write('CallStatistics.print_summary... passed\n\n')
 
     def test_prtest_run_simulation(self):
 
