@@ -98,16 +98,14 @@ class CallStatistics:
     """Class for gathering call center statistics.
 
     Attributes:
-        fresher_counter (list): List of counts of calls handled by each fresher.
-        fresher_call_duration (list): List of total call duration handled by each fresher.
+        fresher_statistics (dict): Dict of statistics mapped by fresher index. Contains counter and call duration.
         technical_lead_counter (int): Count of calls handled by the technical lead.
         technical_lead_call_duration (int): Total call duration handled by the technical lead.
         project_manager_counter (int): Count of calls handled by the project manager.
         project_manager_call_duration (int): Total call duration handled by the project manager.
     """
-    def __init__(self, number_of_freshers=0):
-        self.fresher_counter = [0] * number_of_freshers
-        self.fresher_call_duration = [0] * number_of_freshers
+    def __init__(self):
+        self.fresher_statistics = {}
         self.technical_lead_counter = 0
         self.technical_lead_call_duration = 0
         self.project_manager_counter = 0
@@ -120,12 +118,10 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        if index >= len(self.fresher_counter):
-            extend_by = index - len(self.fresher_counter) + 1
-            self.fresher_counter.extend([0] * extend_by)
-            self.fresher_call_duration.extend([0] * extend_by)
-        self.fresher_counter[index] += 1
-        self.fresher_call_duration[index] += call_duration
+        if index not in self.fresher_statistics:
+            self.fresher_statistics[index] = {'counter': 0, 'call_duration': 0}
+        self.fresher_statistics[index]['counter'] += 1
+        self.fresher_statistics[index]['call_duration'] += call_duration
 
     def add_technical_lead_call(self, call_duration):
         """Add statistics for a technical lead who handled a call.
@@ -149,8 +145,8 @@ class CallStatistics:
         """Prints a summary of the call center statistics."""
         print("----------------------------------------------")
         print('Summary:')
-        for i, f in enumerate(self.fresher_counter):
-            print(f'fresher {i + 1}: answered {f} calls and spent {self.fresher_call_duration[i]} seconds on the phone.')
+        for i, stats in sorted(self.fresher_statistics.items()):
+            print(f'fresher {i + 1}: answered {stats["counter"]} calls and spent {stats["call_duration"]} seconds on the phone.')
         print(f'Technical lead: answered {self.technical_lead_counter} calls and spent {self.technical_lead_call_duration} seconds on the phone.')
         print(f'Project manager: answered {self.project_manager_counter} calls and spent {self.project_manager_call_duration} seconds on the phone.')
 
@@ -229,12 +225,11 @@ class CallCenterSimulation:
 
         return technical_lead
 
-    def assign_freshers(self, freshers, fresher_counter, idx):
+    def assign_freshers(self, freshers, idx):
         """Assign a call to a fresher.
 
         Args:
             freshers (list): List of fresher instances.
-            fresher_counter (list): List of fresher call counters.
             idx (int): Index of the fresher to assign the call.
         """
         print(f"{freshers[idx].name} is {'busy' if freshers[idx].is_alive() else 'free'}.")
@@ -244,7 +239,6 @@ class CallCenterSimulation:
                 freshers[idx] = Fresher()
                 freshers[idx].set(f"fresher {idx + 1}", self.min_max_call_duration)
             freshers[idx].start()
-            fresher_counter[idx] += 1
             self.call_statistics.add_fresher_call(idx, freshers[idx].call_duration)
         finally:
             self.lock.release()
@@ -348,7 +342,6 @@ class CallCenterSimulation:
 
         # Run the simulation
         end_time = time.time() + self.run_time
-        fresher_counter = [0] * self.number_of_freshers
 
         # Exception handling
         loop_number = 1
@@ -371,7 +364,7 @@ class CallCenterSimulation:
                     if idx > -1:
                         # If any of the freshers ia available then assign the call to that fresher
                         # If the employee was in a call before then the thread should be re-initialized 
-                        self.assign_freshers(freshers, fresher_counter, idx)
+                        self.assign_freshers(freshers, idx)
                     else:
                         # If all freshers are busy then assign the call to the technical lead
                         if not technical_lead.is_alive():

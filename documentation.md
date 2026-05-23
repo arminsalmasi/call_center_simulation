@@ -42,8 +42,7 @@ This function finds an available fresher employee in the call center. It returns
 This class is for gathering call center statistics.
 
 Attributes
-- `fresher_counter`: List of counts of calls handled by each fresher.
-- `fresher_call_duration`: List of total call duration handled by each fresher.
+- `fresher_statistics`: Dict of statistics mapped by fresher index. Contains counter and call duration.
 - `technical_lead_counter`: Count of calls handled by the technical lead.
 - `technical_lead_call_duration`: Total call duration handled by the technical lead.
 - `product_manager_counter`: Count of calls handled by the product manager.
