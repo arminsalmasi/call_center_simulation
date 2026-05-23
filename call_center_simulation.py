@@ -15,11 +15,14 @@
         - Each employee has a method to simulate handling a call (run the tread).
  """
 # Imports
-import random
+import secrets
 import time
 import sys
+import logging
 from threading import Thread, Lock
 import argparse
+
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Employee(Thread):
     """Base class representing an employee in the call center.
@@ -37,7 +40,7 @@ class Employee(Thread):
         Returns:
             int: Random number between the min and max call duration range.
         """
-        return random.randint(self.min_max_call_duration[0], self.min_max_call_duration[1])
+        return secrets.SystemRandom().randint(self.min_max_call_duration[0], self.min_max_call_duration[1])
 
     def set(self, name, min_max_call_duration):
         """Sets the employee attributes.
@@ -286,7 +289,7 @@ class CallCenterSimulation:
                 if time.time() >= end_time:
                     break
                 # Process call waves
-                number_of_calls = random.randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
+                number_of_calls = secrets.SystemRandom().randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
                 print("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
                 print(f"Incoming calls: {number_of_calls}, loop: {loop_number}")
                 print("----------------------------------------------")
@@ -315,7 +318,7 @@ class CallCenterSimulation:
                                 self.termination_message(project_manager)
 
                 # Wait for the next call wave
-                time_interval = random.randint(self.min_max_sleep_interval[0], self.min_max_sleep_interval[1])
+                time_interval = secrets.SystemRandom().randint(self.min_max_sleep_interval[0], self.min_max_sleep_interval[1])
                 print(f"Waiting for {time_interval} seconds before initiating the next wave of calls.")
                 print("----------------------------------------------")
 
@@ -343,7 +346,8 @@ class CallCenterSimulation:
             self.call_statistics.print_summary()
 
         except Exception as e:
-            print(f"An error occurred during the call center simulation: {str(e)}")
+            logging.error("Exception occurred during the call center simulation", exc_info=True)
+            print("An unexpected error occurred during the call center simulation. Please check the logs.")
             sys.exit(1)
         return True
 
