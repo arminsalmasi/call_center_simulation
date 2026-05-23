@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
 
 class EmployeeTest(unittest.TestCase):
@@ -20,6 +20,36 @@ class EmployeeTest(unittest.TestCase):
         print('Employee._set_call_duration,... passed\n')
         pass
 
+    @patch('call_center_simulation.time.sleep')
+    def test_run(self, mock_sleep):
+        """
+        Test the run method of the Employee class.
+
+        It ensures that the sleep method is called, lock is acquired and released,
+        and was_called_before is set to True.
+        """
+        employee = Employee()
+        employee.name = "Test Employee"
+        employee.call_duration = 5
+        employee.was_called_before = False
+
+        # Mock the lock
+        mock_lock = MagicMock()
+        employee.lock = mock_lock
+
+        employee.run()
+
+        # Verify time.sleep was called with call_duration
+        mock_sleep.assert_called_once_with(5)
+
+        # Verify lock acquire and release were called
+        mock_lock.acquire.assert_called_once()
+        mock_lock.release.assert_called_once()
+
+        # Verify was_called_before was set to True
+        self.assertTrue(employee.was_called_before)
+        print('Employee.run,... passed\n')
+        pass
 
 class FresherTest(unittest.TestCase):    
     def test_set(self):
