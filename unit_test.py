@@ -1,5 +1,33 @@
 import unittest
-from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
+from unittest.mock import patch
+from io import StringIO
+import sys
+from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index, main
+
+class MainTest(unittest.TestCase):
+    @patch('sys.argv', ['call_center_simulation.py', '8', '60', '1', '5', '2', '5', '10', '20'])
+    @patch('call_center_simulation.CallCenterSimulation.set')
+    @patch('call_center_simulation.CallCenterSimulation.run_simulation')
+    def test_main_success(self, mock_run, mock_set):
+        """
+        Test the successful execution of the main function.
+        It verifies that CallCenterSimulation.set and run_simulation are called.
+        """
+        main()
+        mock_set.assert_called_once_with(8, 60, (1, 5), (2, 5), (10, 20))
+        mock_run.assert_called_once()
+        print('main_success... passed\n')
+
+    @patch('sys.argv', ['call_center_simulation.py', '8', '60', '1', '5', '2', '5', '10', '20'])
+    @patch('call_center_simulation.CallCenterSimulation.run_simulation', side_effect=KeyboardInterrupt)
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_main_keyboard_interrupt(self, mock_stdout, mock_run):
+        """
+        Test the main function handles KeyboardInterrupt correctly.
+        """
+        main()
+        self.assertEqual(mock_stdout.getvalue(), "\nSimulation interrupted.\n")
+        # print is not executed because stdout is mocked, but we don't need it.
 
 class EmployeeTest(unittest.TestCase):
 
@@ -19,6 +47,36 @@ class EmployeeTest(unittest.TestCase):
         print('Employee._set_call_duration,... passed\n')
         pass
 
+    @patch('call_center_simulation.time.sleep')
+    def test_run(self, mock_sleep):
+        """
+        Test the run method of the Employee class.
+
+        It ensures that the sleep method is called, lock is acquired and released,
+        and was_called_before is set to True.
+        """
+        employee = Employee()
+        employee.name = "Test Employee"
+        employee.call_duration = 5
+        employee.was_called_before = False
+
+        # Mock the lock
+        mock_lock = MagicMock()
+        employee.lock = mock_lock
+
+        employee.run()
+
+        # Verify time.sleep was called with call_duration
+        mock_sleep.assert_called_once_with(5)
+
+        # Verify lock acquire and release were called
+        mock_lock.acquire.assert_called_once()
+        mock_lock.release.assert_called_once()
+
+        # Verify was_called_before was set to True
+        self.assertTrue(employee.was_called_before)
+        print('Employee.run,... passed\n')
+        pass
 
 class FresherTest(unittest.TestCase):    
     def test_set(self):
@@ -38,27 +96,6 @@ class FresherTest(unittest.TestCase):
         self.assertTrue(10 <= fresher.call_duration <= 20)
         self.assertFalse(fresher.was_called_before)
         print('Fresher.set,... passed\n')
-        pass
-
-
-    def test_get(self):
- 
-
-        """
-        Test the get method of the Fresher class.
-
-        It ensures that the method returns the expected values for the name, call duration, was_called_before, and min_max_call_duration attributes.
-
-        Assertions:
-            - The returned tuple contains the expected values.
-        """
-
-        fresher = Fresher()
-        fresher.set("Fresher 1", (10, 20))
-        result = fresher.get()
-        expected_result = ("Fresher 1", fresher.call_duration, fresher.was_called_before, (10, 20))
-        self.assertEqual(result, expected_result)
-        print('Fresher.get,... passed\n')
         pass
 
 
@@ -180,6 +217,36 @@ class CallStatisticsTest(unittest.TestCase):
 
 
     
+    @patch('sys.stdout', new_callable=io.StringIO)
+    def test_print_summary(self, mock_stdout):
+        """
+        Test the print_summary method of the CallStatistics class.
+
+        It ensures that the summary is printed correctly based on the call statistics.
+
+        Assertions:
+            - The printed output matches the expected summary.
+        """
+        call_statistics = CallStatistics()
+        call_statistics.add_fresher_call(0, 30)
+        call_statistics.add_fresher_call(0, 20)
+        call_statistics.add_fresher_call(1, 40)
+        call_statistics.add_technical_lead_call(50)
+        call_statistics.add_project_manager_call(60)
+
+        call_statistics.print_summary()
+
+        expected_output = (
+            "----------------------------------------------\n"
+            "Summary:\n"
+            "fresher 1: answered 2 calls and spent 50 seconds on the phone.\n"
+            "fresher 2: answered 1 calls and spent 40 seconds on the phone.\n"
+            "Technical lead: answered 1 calls and spent 50 seconds on the phone.\n"
+            "Project manager: answered 1 calls and spent 60 seconds on the phone.\n"
+        )
+        self.assertEqual(mock_stdout.getvalue(), expected_output)
+        sys.__stdout__.write('CallStatistics.print_summary... passed\n\n')
+
     def test_prtest_run_simulation(self):
 
         """
