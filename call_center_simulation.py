@@ -171,6 +171,18 @@ class CallCenterSimulation:
             min_max_sleep_interval (tuple): Min and max sleep interval between call waves.
             min_max_call_duration (tuple): Min and max duration of calls.
         """
+        # Security Enhancement: Validate inputs to prevent Resource Exhaustion (DoS risk)
+        if not (0 <= number_of_freshers <= 1000):
+            raise ValueError("number_of_freshers must be between 0 and 1000")
+        if run_time < 0 or run_time > 86400:  # Max 1 day simulation
+            raise ValueError("run_time must be between 0 and 86400")
+        if not (0 <= min_max_calls_per_wave[0] <= min_max_calls_per_wave[1] and min_max_calls_per_wave[1] <= 10000):
+            raise ValueError("Invalid min_max_calls_per_wave range")
+        if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1]):
+            raise ValueError("Invalid min_max_sleep_interval range")
+        if not (0 <= min_max_call_duration[0] <= min_max_call_duration[1]):
+            raise ValueError("Invalid min_max_call_duration range")
+
         self.number_of_freshers = number_of_freshers
         self.run_time = run_time
         self.min_max_calls_per_wave = min_max_calls_per_wave
