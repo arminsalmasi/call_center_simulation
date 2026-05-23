@@ -105,9 +105,9 @@ class CallStatistics:
         project_manager_counter (int): Count of calls handled by the project manager.
         project_manager_call_duration (int): Total call duration handled by the project manager.
     """
-    def __init__(self):
-        self.fresher_counter = []
-        self.fresher_call_duration = []
+    def __init__(self, number_of_freshers=0):
+        self.fresher_counter = [0] * number_of_freshers
+        self.fresher_call_duration = [0] * number_of_freshers
         self.technical_lead_counter = 0
         self.technical_lead_call_duration = 0
         self.project_manager_counter = 0
@@ -120,9 +120,10 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        while len(self.fresher_counter) <= index:
-            self.fresher_counter.append(0)
-            self.fresher_call_duration.append(0)
+        if index >= len(self.fresher_counter):
+            extend_by = index - len(self.fresher_counter) + 1
+            self.fresher_counter.extend([0] * extend_by)
+            self.fresher_call_duration.extend([0] * extend_by)
         self.fresher_counter[index] += 1
         self.fresher_call_duration[index] += call_duration
 
@@ -179,6 +180,7 @@ class CallCenterSimulation:
         self.min_max_calls_per_wave = min_max_calls_per_wave
         self.min_max_sleep_interval = min_max_sleep_interval
         self.min_max_call_duration = min_max_call_duration
+        self.call_statistics = CallStatistics(number_of_freshers)
 
     def assign_project_manager(self, technical_lead, project_manager):
         """Assign a call to the project manager.
