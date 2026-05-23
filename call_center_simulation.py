@@ -54,14 +54,6 @@ class Employee(Thread):
         self.call_duration = self._set_call_duration()
         self.was_called_before = False
 
-    def get(self):
-        """Get the attributes of the employee.
-
-        Returns:
-            tuple: The name of the employee, call duration, was_called_before flag, and min_max_call_duration.
-        """
-        return (self.name, self.call_duration, self.was_called_before, self.min_max_call_duration)
-
     def run(self):
         """Run method that will be invoked when the thread is started. Simulates the employee handling the call."""
         print(f"{self.name} took the call. The call will take {self.call_duration} seconds.")

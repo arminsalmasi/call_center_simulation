@@ -74,27 +74,6 @@ class FresherTest(unittest.TestCase):
         pass
 
 
-    def test_get(self):
- 
-
-        """
-        Test the get method of the Fresher class.
-
-        It ensures that the method returns the expected values for the name, call duration, was_called_before, and min_max_call_duration attributes.
-
-        Assertions:
-            - The returned tuple contains the expected values.
-        """
-
-        fresher = Fresher()
-        fresher.set("Fresher 1", (10, 20))
-        result = fresher.get()
-        expected_result = ("Fresher 1", fresher.call_duration, fresher.was_called_before, (10, 20))
-        self.assertEqual(result, expected_result)
-        print('Fresher.get,... passed\n')
-        pass
-
-
 
 class CallStatisticsTest(unittest.TestCase):
     def test_set(self):
