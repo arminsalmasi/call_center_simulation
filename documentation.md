@@ -36,7 +36,7 @@ Methods
 These are subclasses of the `Employee` class, representing a fresher, technical lead, and product manager employees in the call center, respectively.
 
 ### Function `find_free_fresher_index`
-This function finds an available fresher employee in the call center. It returns the index of the first available fresher, or -1 if no freshers are available.
+This function finds an available fresher employee in the call center. It takes an iterable of booleans as an argument. It returns the index of the first available fresher, or -1 if no freshers are available.
 
 ### Class `CallStatistics`
 This class is for gathering call center statistics.
