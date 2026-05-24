@@ -80,17 +80,17 @@ class ProjectManager(Employee):
     def __init__(self):
         super().__init__()
 
-def find_free_fresher_index(freshers):
+def find_free_fresher_index(fresher_states):
     """Find an available fresher employee in the call center.
 
     Args:
-        freshers (list): List of fresher employees.
+        fresher_states (iterable): Iterable of boolean states indicating if a fresher is busy.
 
     Returns:
         int: Index of the first available fresher, -1 if no freshers are available.
     """
-    for index, fresher in enumerate(freshers):
-        if not fresher.is_alive():
+    for index, is_busy in enumerate(fresher_states):
+        if not is_busy:
             return index
     return -1
 
@@ -188,7 +188,7 @@ class CallCenterSimulation:
         self.min_max_calls_per_wave = min_max_calls_per_wave
         self.min_max_sleep_interval = min_max_sleep_interval
         self.min_max_call_duration = min_max_call_duration
-        self.call_statistics = CallStatistics(number_of_freshers)
+        self.call_statistics = CallStatistics()
 
     def assign_project_manager(self, technical_lead, project_manager):
         """Assign a call to the project manager.
@@ -302,7 +302,7 @@ class CallCenterSimulation:
         # Process individual calls
         for call in range(number_of_calls):
             # Find indices of free freshers, -1 if none
-            idx = find_free_fresher_index([not fresher.is_alive() for fresher in freshers])
+            idx = find_free_fresher_index(fresher.is_alive() for fresher in freshers)
             print(f"Call {call + 1} is on top of the queue.")
             print("----------------------")
 
@@ -345,7 +345,7 @@ class CallCenterSimulation:
             if not(project_manager.is_alive()) and project_manager.was_called_before:
                     project_manager.join(timeout=2)
 
-            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all([not(fresher.is_alive()) for fresher in freshers]):
+            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not(fresher.is_alive()) for fresher in freshers):
                 break
 
     def run_simulation(self):
@@ -369,7 +369,7 @@ class CallCenterSimulation:
                 # Process individual calls
                 for call in range(number_of_calls):
                     # Find indices of free freshers, -1 if none
-                    idx = find_free_fresher_index(freshers)
+                    idx = find_free_fresher_index(fresher.is_alive() for fresher in freshers)
                     print(f"Call {call + 1} is on top of the queue.")
                     print("----------------------")
 

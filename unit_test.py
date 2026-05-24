@@ -1,4 +1,7 @@
+import io
 import unittest
+import sys
+from unittest.mock import MagicMock
 from unittest.mock import patch
 from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
 
@@ -104,7 +107,7 @@ class CallStatisticsTest(unittest.TestCase):
         Assertions:
             - The fresher_statistics attribute is updated correctly.
         """
-        call_statistics = CallStatistics(1)
+        call_statistics = CallStatistics()
         call_statistics.add_fresher_call(0, 30)
         self.assertEqual(call_statistics.fresher_statistics[0]['counter'], 1)
         self.assertEqual(call_statistics.fresher_statistics[0]['call_duration'], 30)
@@ -280,11 +283,11 @@ class OtherTest(unittest.TestCase):
                 return self._is_alive
 
         test_list = [MockFresher(True), MockFresher(True), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False)]
-        self.assertEqual(find_free_fresher_index(test_list),2)
+        self.assertEqual(find_free_fresher_index(f.is_alive() for f in test_list),2)
         test_list = [MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
-        self.assertEqual(find_free_fresher_index(test_list),-1)
+        self.assertEqual(find_free_fresher_index(f.is_alive() for f in test_list),-1)
         test_list = [MockFresher(False), MockFresher(False), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
-        self.assertEqual(find_free_fresher_index(test_list),0)
+        self.assertEqual(find_free_fresher_index(f.is_alive() for f in test_list),0)
         print('find_free_fresher_index... passed\n')
         pass
 
