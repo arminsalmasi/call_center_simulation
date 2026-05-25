@@ -1,5 +1,7 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
+import io
+import sys
 from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
 
 class EmployeeTest(unittest.TestCase):
@@ -104,7 +106,7 @@ class CallStatisticsTest(unittest.TestCase):
         Assertions:
             - The fresher_statistics attribute is updated correctly.
         """
-        call_statistics = CallStatistics(1)
+        call_statistics = CallStatistics()
         call_statistics.add_fresher_call(0, 30)
         self.assertEqual(call_statistics.fresher_statistics[0]['counter'], 1)
         self.assertEqual(call_statistics.fresher_statistics[0]['call_duration'], 30)
