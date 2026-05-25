@@ -188,7 +188,7 @@ class CallCenterSimulation:
         self.min_max_calls_per_wave = min_max_calls_per_wave
         self.min_max_sleep_interval = min_max_sleep_interval
         self.min_max_call_duration = min_max_call_duration
-        self.call_statistics = CallStatistics(number_of_freshers)
+        self.call_statistics = CallStatistics()
 
     def assign_project_manager(self, technical_lead, project_manager):
         """Assign a call to the project manager.
@@ -454,6 +454,13 @@ def main():
             parser.error("min_sleep_interval must be non-negative")
         if args.min_call_duration <= 0:
             parser.error("min_call_duration must be strictly positive")
+
+        if args.number_of_freshers > 1000:
+            parser.error("number_of_freshers must not exceed 1000")
+        if args.run_time > 86400:
+            parser.error("run_time must not exceed 86400")
+        if args.max_calls_per_wave > 10000:
+            parser.error("max_calls_per_wave must not exceed 10000")
 
         if args.min_calls_per_wave > args.max_calls_per_wave:
             parser.error("min_calls_per_wave cannot be greater than max_calls_per_wave")
