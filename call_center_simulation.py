@@ -188,7 +188,7 @@ class CallCenterSimulation:
         self.min_max_calls_per_wave = min_max_calls_per_wave
         self.min_max_sleep_interval = min_max_sleep_interval
         self.min_max_call_duration = min_max_call_duration
-        self.call_statistics = CallStatistics(number_of_freshers)
+        self.call_statistics = CallStatistics()
 
     def assign_project_manager(self, technical_lead, project_manager):
         """Assign a call to the project manager.
@@ -444,12 +444,14 @@ def main():
         args = parser.parse_args()
 
         # Validate arguments
-        if args.number_of_freshers <= 0:
-            parser.error("number_of_freshers must be greater than 0")
-        if args.run_time <= 0:
-            parser.error("run_time must be greater than 0")
+        if args.number_of_freshers <= 0 or args.number_of_freshers > 1000:
+            parser.error("number_of_freshers must be between 1 and 1000")
+        if args.run_time <= 0 or args.run_time > 86400:
+            parser.error("run_time must be between 1 and 86400")
         if args.min_calls_per_wave < 0:
             parser.error("min_calls_per_wave must be non-negative")
+        if args.max_calls_per_wave > 10000:
+            parser.error("max_calls_per_wave must be at most 10000")
         if args.min_sleep_interval < 0:
             parser.error("min_sleep_interval must be non-negative")
         if args.min_call_duration <= 0:
@@ -477,7 +479,10 @@ def main():
         min_max_calls_per_wave = (min_calls_per_wave, max_calls_per_wave)
         min_max_sleep_interval = (min_sleep_interval, max_sleep_interval)
         min_max_call_duration = (min_call_duration, max_call_duration)
-        call_center_simulation.set(number_of_freshers, run_time, min_max_calls_per_wave, min_max_sleep_interval, min_max_call_duration)
+        try:
+            call_center_simulation.set(number_of_freshers, run_time, min_max_calls_per_wave, min_max_sleep_interval, min_max_call_duration)
+        except ValueError as e:
+            parser.error(str(e))
 
         # Run the simulation
         call_center_simulation.run_simulation()
