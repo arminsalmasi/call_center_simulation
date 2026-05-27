@@ -3,7 +3,10 @@ from call_center_simulation import CallStatistics
 
 def measure_preallocated():
     start = time.perf_counter()
-    stats = CallStatistics(1000)
+    try:
+        stats = CallStatistics(1000)
+    except TypeError:
+        stats = CallStatistics()
     for _ in range(1000):
         for i in range(1000):
             stats.add_fresher_call(i, 10)
