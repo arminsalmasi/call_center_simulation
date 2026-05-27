@@ -178,9 +178,9 @@ class CallCenterSimulation:
             raise ValueError("run_time must be between 0 and 86400")
         if not (0 <= min_max_calls_per_wave[0] <= min_max_calls_per_wave[1] and min_max_calls_per_wave[1] <= 10000):
             raise ValueError("Invalid min_max_calls_per_wave range")
-        if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1]):
+        if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1] and min_max_sleep_interval[1] <= 86400):
             raise ValueError("Invalid min_max_sleep_interval range")
-        if not (0 <= min_max_call_duration[0] <= min_max_call_duration[1]):
+        if not (0 <= min_max_call_duration[0] <= min_max_call_duration[1] and min_max_call_duration[1] <= 86400):
             raise ValueError("Invalid min_max_call_duration range")
 
         self.number_of_freshers = number_of_freshers
@@ -188,7 +188,7 @@ class CallCenterSimulation:
         self.min_max_calls_per_wave = min_max_calls_per_wave
         self.min_max_sleep_interval = min_max_sleep_interval
         self.min_max_call_duration = min_max_call_duration
-        self.call_statistics = CallStatistics(number_of_freshers)
+        self.call_statistics = CallStatistics()
 
     def assign_project_manager(self, technical_lead, project_manager):
         """Assign a call to the project manager.
@@ -461,6 +461,18 @@ def main():
             parser.error("min_sleep_interval cannot be greater than max_sleep_interval")
         if args.min_call_duration > args.max_call_duration:
             parser.error("min_call_duration cannot be greater than max_call_duration")
+
+        # Security Enhancement: Prevent Resource Exhaustion (DoS risk) by enforcing upper boundaries at CLI level
+        if args.number_of_freshers > 1000:
+            parser.error("number_of_freshers cannot exceed 1000")
+        if args.run_time > 86400:
+            parser.error("run_time cannot exceed 86400")
+        if args.max_calls_per_wave > 10000:
+            parser.error("max_calls_per_wave cannot exceed 10000")
+        if args.max_sleep_interval > 86400:
+            parser.error("max_sleep_interval cannot exceed 86400")
+        if args.max_call_duration > 86400:
+            parser.error("max_call_duration cannot exceed 86400")
 
         # Set the parameters of the call center simulation
         number_of_freshers = args.number_of_freshers
