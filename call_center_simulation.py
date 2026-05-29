@@ -80,16 +80,16 @@ class ProjectManager(Employee):
     def __init__(self):
         super().__init__()
 
-def find_free_fresher_index(freshers):
+def find_free_fresher_index(freshers_iterable):
     """Find an available fresher employee in the call center.
 
     Args:
-        freshers (list): List of fresher employees.
+        freshers_iterable (iterable): Iterable of fresher employees.
 
     Returns:
         int: Index of the first available fresher, -1 if no freshers are available.
     """
-    for index, fresher in enumerate(freshers):
+    for index, fresher in enumerate(freshers_iterable):
         if not fresher.is_alive():
             return index
     return -1
@@ -302,7 +302,7 @@ class CallCenterSimulation:
         # Process individual calls
         for call in range(number_of_calls):
             # Find indices of free freshers, -1 if none
-            idx = find_free_fresher_index([not fresher.is_alive() for fresher in freshers])
+            idx = find_free_fresher_index(freshers)
             print(f"Call {call + 1} is on top of the queue.")
             print("----------------------")
 
@@ -345,7 +345,7 @@ class CallCenterSimulation:
             if not(project_manager.is_alive()) and project_manager.was_called_before:
                     project_manager.join(timeout=2)
 
-            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all([not(fresher.is_alive()) for fresher in freshers]):
+            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not fresher.is_alive() for fresher in freshers):
                 break
 
     def run_simulation(self):
@@ -412,7 +412,7 @@ class CallCenterSimulation:
                 if not(project_manager.is_alive()) and project_manager.was_called_before:
                         project_manager.join(timeout=2)
                 
-                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not(fresher.is_alive()) for fresher in freshers):
+                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not fresher.is_alive() for fresher in freshers):
                     break
 
             # Print call statistics
