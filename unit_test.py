@@ -279,12 +279,12 @@ class OtherTest(unittest.TestCase):
             def is_alive(self):
                 return self._is_alive
 
-        test_list = [MockFresher(True), MockFresher(True), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False)]
-        self.assertEqual(find_free_fresher_index(test_list),2)
-        test_list = [MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
-        self.assertEqual(find_free_fresher_index(test_list),-1)
-        test_list = [MockFresher(False), MockFresher(False), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
-        self.assertEqual(find_free_fresher_index(test_list),0)
+        test_iterable = [MockFresher(True), MockFresher(True), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False)]
+        self.assertEqual(find_free_fresher_index(test_iterable),2)
+        test_iterable = [MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
+        self.assertEqual(find_free_fresher_index(test_iterable),-1)
+        test_iterable = [MockFresher(False), MockFresher(False), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]
+        self.assertEqual(find_free_fresher_index(test_iterable),0)
         print('find_free_fresher_index... passed\n')
         pass
 
