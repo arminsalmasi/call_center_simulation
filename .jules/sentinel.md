@@ -1,5 +1,4 @@
-## 2024-05-24 - Missing Input Validation DoS risk
-
-**Vulnerability:** The `CallCenterSimulation.set()` method lacked input validation for `number_of_freshers`, allowing unbounded thread creation.
-**Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
-**Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
+## 2026-05-30 - Resource Exhaustion (DoS) via Unbounded Thread Creation and Call Durations
+**Vulnerability:** The simulation script accepted command line arguments for parameters like `number_of_freshers`, `run_time`, `max_calls_per_wave`, `max_sleep_interval`, and `max_call_duration` without an upper bound constraint. Given that threads are created based on these parameters, this could lead to Resource Exhaustion (DoS) if arbitrarily large numbers were passed, potentially crashing the simulation or the machine running it.
+**Learning:** Always validate external inputs, specifically CLI arguments that define internal processing load like loop intervals, loop counts, and thread counts, with strict upper limits, even if logic currently demands merely positive numbers.
+**Prevention:** Implement strict upper bound checks for all configuration arguments, explicitly capping counts and time durations (e.g., maximum threads <= 1000, time periods <= 86400 seconds) during initialization to enforce resource limits.
