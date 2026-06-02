@@ -302,7 +302,9 @@ class CallCenterSimulation:
         # Process individual calls
         for call in range(number_of_calls):
             # Find indices of free freshers, -1 if none
-            idx = find_free_fresher_index([not fresher.is_alive() for fresher in freshers])
+            # Passing the raw list instead of evaluating it to a boolean list comprehension
+            # allows short-circuiting to minimize the overhead of checking .is_alive() for every thread.
+            idx = find_free_fresher_index(freshers)
             print(f"Call {call + 1} is on top of the queue.")
             print("----------------------")
 
@@ -345,7 +347,9 @@ class CallCenterSimulation:
             if not(project_manager.is_alive()) and project_manager.was_called_before:
                     project_manager.join(timeout=2)
 
-            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all([not(fresher.is_alive()) for fresher in freshers]):
+            # Eager evaluation of .is_alive() is expensive on threads; a generator handles
+            # this lazily, stopping the all() evaluation upon encountering the first False
+            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not(fresher.is_alive()) for fresher in freshers):
                 break
 
     def run_simulation(self):
