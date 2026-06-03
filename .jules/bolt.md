@@ -1,3 +1,6 @@
 ## 2026-05-17 - Avoid cryptographic rng for general simulations
 **Learning:** The codebase was using `secrets.SystemRandom().randint()` for generating call metrics (duration, waves, intervals) which is a cryptographic operation reading from system entropy (`/dev/urandom`). This adds massive overhead to rapid generation in large-scale simulation threads compared to a pseudo-random number generator.
 **Action:** Use standard `random.randint()` for statistical/simulation randomization tasks where cryptographic security is not required, resulting in up to 5-6x speedup in standalone number generation overhead.
+## 2023-11-20 - Avoid eager list comprehensions of thread state calls in large simulations
+**Learning:** Evaluated `.is_alive()` on lists of thread objects eagerly in a list comprehension is slow because it checks the state for every thread, completely breaking the ability for logic to "short-circuit". It creates a significant bottleneck. Passing the iterable directly, or using short-circuiting generators like `all(not f.is_alive() for f in freshers)` improves performance.
+**Action:** Replace `[x.is_alive() for x in threads]` with generator expressions `(x.is_alive() for x in threads)` or modify functions to accept the raw thread list directly to allow them to handle early-exits and avoid building intermediate lists in memory.
