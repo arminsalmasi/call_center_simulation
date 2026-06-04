@@ -178,9 +178,9 @@ class CallCenterSimulation:
             raise ValueError("run_time must be between 0 and 86400")
         if not (0 <= min_max_calls_per_wave[0] <= min_max_calls_per_wave[1] and min_max_calls_per_wave[1] <= 10000):
             raise ValueError("Invalid min_max_calls_per_wave range")
-        if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1]):
+        if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1] and min_max_sleep_interval[1] <= 86400):
             raise ValueError("Invalid min_max_sleep_interval range")
-        if not (0 <= min_max_call_duration[0] <= min_max_call_duration[1]):
+        if not (0 <= min_max_call_duration[0] <= min_max_call_duration[1] and min_max_call_duration[1] <= 86400):
             raise ValueError("Invalid min_max_call_duration range")
 
         self.number_of_freshers = number_of_freshers
@@ -444,10 +444,10 @@ def main():
         args = parser.parse_args()
 
         # Validate arguments
-        if args.number_of_freshers <= 0:
-            parser.error("number_of_freshers must be greater than 0")
-        if args.run_time <= 0:
-            parser.error("run_time must be greater than 0")
+        if args.number_of_freshers <= 0 or args.number_of_freshers > 1000:
+            parser.error("number_of_freshers must be between 1 and 1000")
+        if args.run_time <= 0 or args.run_time > 86400:
+            parser.error("run_time must be between 1 and 86400")
         if args.min_calls_per_wave < 0:
             parser.error("min_calls_per_wave must be non-negative")
         if args.min_sleep_interval < 0:
@@ -457,10 +457,18 @@ def main():
 
         if args.min_calls_per_wave > args.max_calls_per_wave:
             parser.error("min_calls_per_wave cannot be greater than max_calls_per_wave")
+        if args.max_calls_per_wave > 10000:
+            parser.error("max_calls_per_wave cannot be greater than 10000")
+
         if args.min_sleep_interval > args.max_sleep_interval:
             parser.error("min_sleep_interval cannot be greater than max_sleep_interval")
+        if args.max_sleep_interval > 86400:
+            parser.error("max_sleep_interval cannot be greater than 86400")
+
         if args.min_call_duration > args.max_call_duration:
             parser.error("min_call_duration cannot be greater than max_call_duration")
+        if args.max_call_duration > 86400:
+            parser.error("max_call_duration cannot be greater than 86400")
 
         # Set the parameters of the call center simulation
         number_of_freshers = args.number_of_freshers
