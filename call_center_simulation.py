@@ -446,8 +446,12 @@ def main():
         # Validate arguments
         if args.number_of_freshers <= 0:
             parser.error("number_of_freshers must be greater than 0")
+        if args.number_of_freshers > 1000:
+            parser.error("number_of_freshers cannot exceed 1000")
         if args.run_time <= 0:
             parser.error("run_time must be greater than 0")
+        if args.run_time > 86400:
+            parser.error("run_time cannot exceed 86400")
         if args.min_calls_per_wave < 0:
             parser.error("min_calls_per_wave must be non-negative")
         if args.min_sleep_interval < 0:
@@ -457,6 +461,8 @@ def main():
 
         if args.min_calls_per_wave > args.max_calls_per_wave:
             parser.error("min_calls_per_wave cannot be greater than max_calls_per_wave")
+        if args.max_calls_per_wave > 10000:
+            parser.error("max_calls_per_wave cannot exceed 10000")
         if args.min_sleep_interval > args.max_sleep_interval:
             parser.error("min_sleep_interval cannot be greater than max_sleep_interval")
         if args.min_call_duration > args.max_call_duration:
