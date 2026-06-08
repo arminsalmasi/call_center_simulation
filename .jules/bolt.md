@@ -1,3 +1,6 @@
 ## 2026-05-17 - Avoid cryptographic rng for general simulations
 **Learning:** The codebase was using `secrets.SystemRandom().randint()` for generating call metrics (duration, waves, intervals) which is a cryptographic operation reading from system entropy (`/dev/urandom`). This adds massive overhead to rapid generation in large-scale simulation threads compared to a pseudo-random number generator.
 **Action:** Use standard `random.randint()` for statistical/simulation randomization tasks where cryptographic security is not required, resulting in up to 5-6x speedup in standalone number generation overhead.
+## 2026-05-17 - Optimize hot loop dictionary lookups in statistics aggregators
+**Learning:** This codebase uses Python dictionaries to store rolling statistics (e.g., `CallStatistics.fresher_statistics`). The default pattern uses LBYL (Look Before You Leap) with `if key not in dict`, which performs multiple expensive dictionary lookups during hot simulation loops, becoming a measurable bottleneck under load.
+**Action:** Use the EAFP (Easier to Ask for Forgiveness than Permission) pattern with `try...except KeyError` and local references (`stats = self.dict[key]`) to handle dictionary aggregation in performance-critical methods to minimize redundant lookups.
