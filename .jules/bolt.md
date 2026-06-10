@@ -1,3 +1,6 @@
 ## 2026-05-17 - Avoid cryptographic rng for general simulations
 **Learning:** The codebase was using `secrets.SystemRandom().randint()` for generating call metrics (duration, waves, intervals) which is a cryptographic operation reading from system entropy (`/dev/urandom`). This adds massive overhead to rapid generation in large-scale simulation threads compared to a pseudo-random number generator.
 **Action:** Use standard `random.randint()` for statistical/simulation randomization tasks where cryptographic security is not required, resulting in up to 5-6x speedup in standalone number generation overhead.
+## 2024-05-18 - EAFP Pattern and Local Variables for Nested Dict Operations
+**Learning:** In hot loops within Python, using the EAFP (Easier to Ask for Forgiveness than Permission) pattern with `try...except KeyError` and assigning a nested dictionary to a local variable significantly reduces execution overhead compared to the LBYL (Look Before You Leap) pattern (`if key not in dict`) and repeated multi-level dictionary lookups.
+**Action:** Always apply the EAFP pattern and assign nested dictionaries to local variables when operating on them in hot loops (e.g., benchmark loops or simulation loops) to minimize the overhead of repeated key checks and dictionary indexing.
