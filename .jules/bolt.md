@@ -1,3 +1,6 @@
 ## 2026-05-17 - Avoid cryptographic rng for general simulations
 **Learning:** The codebase was using `secrets.SystemRandom().randint()` for generating call metrics (duration, waves, intervals) which is a cryptographic operation reading from system entropy (`/dev/urandom`). This adds massive overhead to rapid generation in large-scale simulation threads compared to a pseudo-random number generator.
 **Action:** Use standard `random.randint()` for statistical/simulation randomization tasks where cryptographic security is not required, resulting in up to 5-6x speedup in standalone number generation overhead.
+## 2026-05-18 - Dictionary lookup overhead in high-throughput loops
+**Learning:** In statistical aggregators (`CallStatistics`) that are called thousands of times inside loops, using LBYL (`if key not in dict`) combined with dynamic dictionary resizing introduces significant execution overhead. Similarly, redundant evaluation of list comprehensions before checking for values introduces unnecessary thread checking overhead.
+**Action:** Pre-allocate dictionaries when possible, use the EAFP pattern (`try...except KeyError`) for default initialization, assign nested dictionaries to local variables in hot loops, and utilize lazy generator expressions in `all()` checks to reduce function execution time and thread overhead significantly.
