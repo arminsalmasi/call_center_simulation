@@ -104,8 +104,12 @@ class CallStatistics:
         project_manager_counter (int): Count of calls handled by the project manager.
         project_manager_call_duration (int): Total call duration handled by the project manager.
     """
-    def __init__(self):
-        self.fresher_statistics = {}
+    def __init__(self, number_of_freshers=None):
+        # Optimization: Pre-allocate dictionary if size is known to reduce dynamic resizing overhead
+        if number_of_freshers is not None:
+            self.fresher_statistics = {i: {'counter': 0, 'call_duration': 0} for i in range(number_of_freshers)}
+        else:
+            self.fresher_statistics = {}
         self.technical_lead_counter = 0
         self.technical_lead_call_duration = 0
         self.project_manager_counter = 0
@@ -118,10 +122,13 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        if index not in self.fresher_statistics:
-            self.fresher_statistics[index] = {'counter': 0, 'call_duration': 0}
-        self.fresher_statistics[index]['counter'] += 1
-        self.fresher_statistics[index]['call_duration'] += call_duration
+        try:
+            # Optimization: Use EAFP pattern and assign to a local variable to minimize dictionary lookups in hot loop
+            stat = self.fresher_statistics[index]
+            stat['counter'] += 1
+            stat['call_duration'] += call_duration
+        except KeyError:
+            self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
     def add_technical_lead_call(self, call_duration):
         """Add statistics for a technical lead who handled a call.
