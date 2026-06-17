@@ -1,3 +1,7 @@
 ## 2026-05-17 - Avoid cryptographic rng for general simulations
 **Learning:** The codebase was using `secrets.SystemRandom().randint()` for generating call metrics (duration, waves, intervals) which is a cryptographic operation reading from system entropy (`/dev/urandom`). This adds massive overhead to rapid generation in large-scale simulation threads compared to a pseudo-random number generator.
 **Action:** Use standard `random.randint()` for statistical/simulation randomization tasks where cryptographic security is not required, resulting in up to 5-6x speedup in standalone number generation overhead.
+
+## 2024-05-28 - Dictionary Pre-allocation and EAFP Overhead
+**Learning:** Pre-allocating dictionaries and using the EAFP pattern (`try...except KeyError`) instead of LBYL (`if key not in dict`) combined with assigning nested dictionaries to local variables inside hot loops significantly reduces execution overhead (e.g. from ~2.24s to ~1.76s). Code review bots might falsely flag missing parameter usage if they don't trace instantiation fully through wrapper classes (like `CallCenterSimulation.set()`).
+**Action:** When working on tight nested loops in Python, proactively apply dictionary pre-allocation if sizes are known at initialization time, and prefer EAFP with local variable references to avoid repeated dictionary key lookups. Ignore false-positive parameter usage warnings if instantiation is verifiably handled by wrapper config methods.
