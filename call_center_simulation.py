@@ -104,8 +104,9 @@ class CallStatistics:
         project_manager_counter (int): Count of calls handled by the project manager.
         project_manager_call_duration (int): Total call duration handled by the project manager.
     """
-    def __init__(self):
-        self.fresher_statistics = {}
+    def __init__(self, number_of_freshers=0):
+        # ⚡ Bolt: Pre-allocate dict for known size to avoid resizing overhead
+        self.fresher_statistics = {i: {'counter': 0, 'call_duration': 0} for i in range(number_of_freshers)}
         self.technical_lead_counter = 0
         self.technical_lead_call_duration = 0
         self.project_manager_counter = 0
@@ -118,10 +119,13 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        if index not in self.fresher_statistics:
-            self.fresher_statistics[index] = {'counter': 0, 'call_duration': 0}
-        self.fresher_statistics[index]['counter'] += 1
-        self.fresher_statistics[index]['call_duration'] += call_duration
+        # ⚡ Bolt: Use EAFP pattern and local variable assignment for hot loop optimization
+        try:
+            stats = self.fresher_statistics[index]
+            stats['counter'] += 1
+            stats['call_duration'] += call_duration
+        except KeyError:
+            self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
     def add_technical_lead_call(self, call_duration):
         """Add statistics for a technical lead who handled a call.
@@ -157,8 +161,8 @@ class CallCenterSimulation:
         call_statistics (CallStatistics): Instance to keep track of the call statistics.
         lock (Lock): A thread lock instance to ensure thread safety when modifying shared data.
     """
-    def __init__(self):
-        self.call_statistics = CallStatistics()
+    def __init__(self, number_of_freshers=0):
+        self.call_statistics = CallStatistics(number_of_freshers)
         self.lock = Lock()  # Create a lock instance
 
     def set(self, number_of_freshers, run_time, min_max_calls_per_wave, min_max_sleep_interval, min_max_call_duration):
@@ -473,7 +477,7 @@ def main():
         max_call_duration = args.max_call_duration
 
         # Create and set up the call center simulation
-        call_center_simulation = CallCenterSimulation()
+        call_center_simulation = CallCenterSimulation(number_of_freshers)
         min_max_calls_per_wave = (min_calls_per_wave, max_calls_per_wave)
         min_max_sleep_interval = (min_sleep_interval, max_sleep_interval)
         min_max_call_duration = (min_call_duration, max_call_duration)
