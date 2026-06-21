@@ -3,3 +3,7 @@
 **Vulnerability:** The `CallCenterSimulation.set()` method lacked input validation for `number_of_freshers`, allowing unbounded thread creation.
 **Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
 **Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
+## 2026-06-21 - Graceful Validation Failure for CLI arguments
+**Vulnerability:** Unbounded arguments from CLI caused unhandled exceptions in inner classes, not exiting gracefully and possibly leading to long-running blocking operations.
+**Learning:** When using argparse for CLI inputs, independently validate user input constraints and upper bounds (using parser.error()) even if inner class methods enforce them to ensure a clean exit.
+**Prevention:** Add parser.error() bounds validation for all argparse arguments.
