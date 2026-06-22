@@ -2,10 +2,7 @@ import time
 from call_center_simulation import CallStatistics
 
 def benchmark():
-    try:
-        stats = CallStatistics(1000)
-    except TypeError:
-        stats = CallStatistics()
+    stats = CallStatistics(1000)
 
     start = time.perf_counter()
     for _ in range(5000):

@@ -41,6 +41,8 @@ This function finds an available fresher employee in the call center. It returns
 ### Class `CallStatistics`
 This class is for gathering call center statistics.
 
+The `__init__` method optionally accepts `number_of_freshers=0` to pre-allocate the `fresher_statistics` dictionary.
+
 Attributes
 - `fresher_statistics`: Dict of statistics mapped by fresher index. Contains counter and call duration.
 - `technical_lead_counter`: Count of calls handled by the technical lead.
