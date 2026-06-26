@@ -1,3 +1,7 @@
 ## 2026-05-17 - Avoid cryptographic rng for general simulations
 **Learning:** The codebase was using `secrets.SystemRandom().randint()` for generating call metrics (duration, waves, intervals) which is a cryptographic operation reading from system entropy (`/dev/urandom`). This adds massive overhead to rapid generation in large-scale simulation threads compared to a pseudo-random number generator.
 **Action:** Use standard `random.randint()` for statistical/simulation randomization tasks where cryptographic security is not required, resulting in up to 5-6x speedup in standalone number generation overhead.
+
+## 2024-05-18 - EAFP Pattern and Generator Expressions
+**Learning:** In this specific codebase, using the EAFP (Easier to Ask for Forgiveness than Permission) pattern with `try...except KeyError` combined with assigning a nested dictionary reference to a local variable for hot loops avoids the duplicate dictionary lookup overhead of `if not in` checks (LBYL). Furthermore, when evaluating `is_alive()` across lists of thread objects like `freshers`, building a list via list comprehension eagerly triggers thread state evaluation with significant CPU/memory overhead. Replacing these with short-circuiting generator expressions passed directly to functions like `find_free_fresher_index()` and `all()` significantly reduces this overhead.
+**Action:** When working on similar statistical aggregators or loops over thread arrays in this application, prefer `try...except` dictionary operations and generator expressions over list comprehensions.
