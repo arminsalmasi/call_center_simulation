@@ -462,6 +462,14 @@ def main():
         if args.min_call_duration > args.max_call_duration:
             parser.error("min_call_duration cannot be greater than max_call_duration")
 
+        # Security Enhancement: Add upper bound validation to CLI arguments
+        if args.number_of_freshers > 1000:
+            parser.error("number_of_freshers must not exceed 1000")
+        if args.run_time > 86400:
+            parser.error("run_time must not exceed 86400")
+        if args.max_calls_per_wave > 10000:
+            parser.error("max_calls_per_wave must not exceed 10000")
+
         # Set the parameters of the call center simulation
         number_of_freshers = args.number_of_freshers
         run_time = args.run_time
