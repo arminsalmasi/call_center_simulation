@@ -118,10 +118,14 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        if index not in self.fresher_statistics:
-            self.fresher_statistics[index] = {'counter': 0, 'call_duration': 0}
-        self.fresher_statistics[index]['counter'] += 1
-        self.fresher_statistics[index]['call_duration'] += call_duration
+        # Bolt: Using EAFP (try/except) and local variables in hot loop is faster than LBYL (if not in)
+        try:
+            stat = self.fresher_statistics[index]
+        except KeyError:
+            stat = {'counter': 0, 'call_duration': 0}
+            self.fresher_statistics[index] = stat
+        stat['counter'] += 1
+        stat['call_duration'] += call_duration
 
     def add_technical_lead_call(self, call_duration):
         """Add statistics for a technical lead who handled a call.
