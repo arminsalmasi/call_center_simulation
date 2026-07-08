@@ -118,10 +118,13 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        if index not in self.fresher_statistics:
-            self.fresher_statistics[index] = {'counter': 0, 'call_duration': 0}
-        self.fresher_statistics[index]['counter'] += 1
-        self.fresher_statistics[index]['call_duration'] += call_duration
+        # ⚡ Bolt: Use EAFP pattern and local variable assignment to avoid redundant dictionary lookups in this hot path.
+        try:
+            stats = self.fresher_statistics[index]
+            stats['counter'] += 1
+            stats['call_duration'] += call_duration
+        except KeyError:
+            self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
     def add_technical_lead_call(self, call_duration):
         """Add statistics for a technical lead who handled a call.
