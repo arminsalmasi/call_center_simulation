@@ -452,30 +452,23 @@ def main():
         args = parser.parse_args()
 
         # Validate arguments
-        if not (0 < args.number_of_freshers <= 1000):
+        if args.number_of_freshers <= 0 or args.number_of_freshers > 1000:
             parser.error("number_of_freshers must be between 1 and 1000")
-        if not (0 < args.run_time <= 86400):
+        if args.run_time <= 0 or args.run_time > 86400:
             parser.error("run_time must be between 1 and 86400")
-        if not (0 <= args.min_calls_per_wave <= 10000) or args.max_calls_per_wave > 10000:
-            parser.error("calls_per_wave must be between 0 and 10000")
-        if not (0 <= args.min_sleep_interval <= 86400) or args.max_sleep_interval > 86400:
-            parser.error("sleep_interval must be between 0 and 86400")
-        if not (0 < args.min_call_duration <= 86400) or args.max_call_duration > 86400:
-            parser.error("call_duration must be between 1 and 86400")
+        if args.min_calls_per_wave < 0:
+            parser.error("min_calls_per_wave must be non-negative")
+        if args.min_sleep_interval < 0:
+            parser.error("min_sleep_interval must be non-negative")
+        if args.min_call_duration <= 0:
+            parser.error("min_call_duration must be strictly positive")
 
-        if args.max_calls_per_wave > 10000:
-            parser.error("max_calls_per_wave cannot be greater than 10000")
-        if args.max_sleep_interval > 3600:
-            parser.error("max_sleep_interval cannot be greater than 3600")
-        if args.max_call_duration > 3600:
-            parser.error("max_call_duration cannot be greater than 3600")
-
-        if args.min_calls_per_wave > args.max_calls_per_wave:
-            parser.error("min_calls_per_wave cannot be greater than max_calls_per_wave")
-        if args.min_sleep_interval > args.max_sleep_interval:
-            parser.error("min_sleep_interval cannot be greater than max_sleep_interval")
-        if args.min_call_duration > args.max_call_duration:
-            parser.error("min_call_duration cannot be greater than max_call_duration")
+        if args.min_calls_per_wave > args.max_calls_per_wave or args.max_calls_per_wave > 10000:
+            parser.error("invalid calls_per_wave range or max exceeds 10000")
+        if args.min_sleep_interval > args.max_sleep_interval or args.max_sleep_interval > 86400:
+            parser.error("invalid sleep_interval range or max exceeds 86400")
+        if args.min_call_duration > args.max_call_duration or args.max_call_duration > 86400:
+            parser.error("invalid call_duration range or max exceeds 86400")
 
         # Security Enhancement: Prevent Resource Exhaustion (DoS risk) by enforcing upper boundaries at CLI level
         if args.number_of_freshers > 1000:
