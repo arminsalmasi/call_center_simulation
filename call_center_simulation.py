@@ -119,12 +119,12 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # Bolt Performance Optimization: Use EAFP pattern (try/except) and assign nested dict
-        # to a local variable to reduce dict lookups in this hot loop aggregator.
+        # ⚡ Bolt Optimization: Use EAFP pattern (try/except) and reference local dictionary
+        # to avoid multiple dictionary lookups in hot loops
         try:
-            stat = self.fresher_statistics[index]
-            stat['counter'] += 1
-            stat['call_duration'] += call_duration
+            stats = self.fresher_statistics[index]
+            stats['counter'] += 1
+            stats['call_duration'] += call_duration
         except KeyError:
             self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
