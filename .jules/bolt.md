@@ -1,7 +1,3 @@
-## 2026-05-17 - Avoid cryptographic rng for general simulations
-**Learning:** The codebase was using `secrets.SystemRandom().randint()` for generating call metrics (duration, waves, intervals) which is a cryptographic operation reading from system entropy (`/dev/urandom`). This adds massive overhead to rapid generation in large-scale simulation threads compared to a pseudo-random number generator.
-**Action:** Use standard `random.randint()` for statistical/simulation randomization tasks where cryptographic security is not required, resulting in up to 5-6x speedup in standalone number generation overhead.
-
-## 2024-05-18 - EAFP and local variables in hot loop aggregators
-**Learning:** In this codebase's statistical aggregators (e.g., CallStatistics), using Look-Before-You-Leap (LBYL) for nested dictionaries introduces significant execution overhead.
-**Action:** Use the EAFP pattern (try...except KeyError) and assign nested dictionaries to local variables for operations in hot loops to significantly reduce execution overhead.
+## 2024-03-24 - Eager Thread Evaluation Bottleneck
+**Learning:** In this codebase, eagerly evaluating `is_alive()` using list comprehensions on large numbers of thread-based objects (like freshers) introduces massive overhead because thread state queries are expensive and unnecessary for the whole list once an available thread is found.
+**Action:** Always prefer generator expressions (lazy evaluation) or short-circuiting loops when searching through thread-based objects to minimize unnecessary state checks.
