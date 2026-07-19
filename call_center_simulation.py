@@ -80,21 +80,17 @@ class ProjectManager(Employee):
     def __init__(self):
         super().__init__()
 
-def find_free_fresher_index(freshers):
+def find_free_fresher_index(iterable):
     """Find an available fresher employee in the call center.
 
     Args:
-        freshers (list): List of fresher instances.
+        iterable (iterable): Iterable of booleans indicating which freshers are available.
 
     Returns:
         int: Index of the first available fresher, -1 if no freshers are available.
     """
-    # ⚡ Bolt Optimization: Short-circuiting evaluation instead of checking all threads
-    # We iterate over the freshers and check `is_alive()` one by one, returning
-    # immediately when a free one is found. This prevents unnecessarily checking
-    # the thread state of all freshers in a list comprehension before finding a free one.
-    for index, fresher in enumerate(freshers):
-        if not fresher.is_alive():
+    for index, value in enumerate(iterable):
+        if value:
             return index
     return -1
 
@@ -373,7 +369,9 @@ class CallCenterSimulation:
                 # Process individual calls
                 for call in range(number_of_calls):
                     # Find indices of free freshers, -1 if none
-                    idx = find_free_fresher_index(freshers)
+                    # OPTIMIZATION: Use generator expression instead of list comprehension
+                    # to short-circuit and avoid calling is_alive() on all freshers unnecessarily
+                    idx = find_free_fresher_index((not fresher.is_alive() for fresher in freshers))
                     print(f"Call {call + 1} is on top of the queue.")
                     print("----------------------")
 
@@ -416,6 +414,7 @@ class CallCenterSimulation:
                 if not(project_manager.is_alive()) and project_manager.was_called_before:
                         project_manager.join(timeout=2)
                 
+                # OPTIMIZATION: Use generator expression instead of list comprehension for short-circuiting
                 if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not(fresher.is_alive()) for fresher in freshers):
                     break
 
