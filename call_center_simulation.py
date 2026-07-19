@@ -458,13 +458,14 @@ def main():
         args = parser.parse_args()
 
         # Validate arguments
-        # Security Enhancement: Validate inputs to prevent Resource Exhaustion (DoS risk)
-        if args.number_of_freshers <= 0 or args.number_of_freshers > 1000:
-            parser.error("number_of_freshers must be greater than 0 and up to 1000")
-        if args.run_time <= 0 or args.run_time > 86400:
-            parser.error("run_time must be greater than 0 and up to 86400")
+        if not (0 < args.number_of_freshers <= 1000):
+            parser.error("number_of_freshers must be between 1 and 1000")
+        if not (0 < args.run_time <= 86400):
+            parser.error("run_time must be between 1 and 86400")
         if args.min_calls_per_wave < 0:
             parser.error("min_calls_per_wave must be non-negative")
+        if args.max_calls_per_wave > 10000:
+            parser.error("max_calls_per_wave cannot be greater than 10000")
         if args.min_sleep_interval < 0:
             parser.error("min_sleep_interval must be non-negative")
         if args.min_call_duration <= 0:
