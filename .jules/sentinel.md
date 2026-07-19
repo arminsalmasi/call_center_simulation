@@ -3,7 +3,9 @@
 **Vulnerability:** The `CallCenterSimulation.set()` method lacked input validation for `number_of_freshers`, allowing unbounded thread creation.
 **Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
 **Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
-## 2024-07-06 - Prevent CPU Spinning / DoS via zero sleep intervals
-**Vulnerability:** The simulation's parameters permitted a (0, 0) sleep interval, which causes the main loop to not sleep at all, leading to CPU spinning and potential resource exhaustion (Denial of Service).
-**Learning:** Even internal tool arguments should be strictly validated against unbounded usage or extreme resource constraints that could lead to DoS conditions.
-**Prevention:** Ensure configurable intervals or delays have a strictly positive upper bound to enforce minimum wait times when resolving tasks in continuous loops.
+
+## 2024-05-24 - Zero-Sleep CPU Spinning DoS risk
+
+**Vulnerability:** The simulation allowed `min_max_sleep_interval` to be `(0, 0)`, leading to a tight `while True` loop with zero sleep time, consuming 100% CPU.
+**Learning:** Simulations with continuous loops and randomized intervals must enforce strictly positive upper bounds on wait times to prevent CPU exhaustion.
+**Prevention:** Always require a strictly positive maximum sleep interval (`max_sleep > 0`) when using it as a delay in a continuous loop.
