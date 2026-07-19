@@ -1,0 +1,172 @@
+:root {
+  --bg: #0f1c24;
+  --panel: #173040;
+  --ink: #e8f1f5;
+  --muted: #9bb4c0;
+  --accent: #3ecf8e;
+  --busy: #f0a05a;
+  --idle: #5ec8ff;
+  --line: rgba(232, 241, 245, 0.12);
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+  --font-body: "Avenir Next", "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: var(--font-body);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #23485c 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #1a3a2c 0%, transparent 50%),
+    var(--bg);
+}
+
+.shell {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  padding: 2.5rem 0 4rem;
+}
+
+.hero {
+  margin-bottom: 2rem;
+}
+
+.brand {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+
+.hero h1 {
+  margin: 0.4rem 0 0.6rem;
+  font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+  font-weight: 600;
+}
+
+.lede {
+  margin: 0;
+  max-width: 40rem;
+  color: var(--muted);
+}
+
+.controls, .board, .stats, .events {
+  background: color-mix(in srgb, var(--panel) 88%, black);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+#config-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+input {
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #0c1620;
+  color: var(--ink);
+  font: inherit;
+}
+
+.actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+button {
+  border: 0;
+  border-radius: 3px;
+  padding: 0.65rem 1.1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--accent);
+  color: #062015;
+}
+
+#stop-btn {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+.status {
+  margin: 1rem 0 0;
+  color: var(--muted);
+}
+
+.agents {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.agent {
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #102230;
+}
+
+.agent .name {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.agent .state {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 2px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.agent .state.idle { background: color-mix(in srgb, var(--idle) 25%, transparent); color: var(--idle); }
+.agent .state.busy { background: color-mix(in srgb, var(--busy) 28%, transparent); color: var(--busy); }
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+#event-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 240px;
+  overflow: auto;
+}
+
+#event-log li {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+h2 {
+  margin: 0 0 0.85rem;
+  font-size: 1.05rem;
+}
