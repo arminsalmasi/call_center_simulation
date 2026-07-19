@@ -1,121 +1,158 @@
-# Call Center Simulation
-This script simulates a call center using Python threads and locks. The design is as follows:
+# Call Center Simulation — Documentation
 
-- The call center has 3 types of employees: freshers, technical leads, and product managers.
-- Each employee has a name, a minimum and maximum call duration, and a flag indicating whether they have been called before.
-- The call center has a list of freshers, a technical lead, and a product manager.
-- The call center has a call statistics object to keep track of call center statistics.
-- The call center has a lock to ensure thread safety when modifying shared data.
-- The call center has a method to find an available fresher.
-- The call center has a method to print a summary of the call center statistics.
-- Each employee is a thread.
-- Each employee has a lock to ensure thread safety when modifying shared data.
-- Each employee has a method to set their attributes.
-- Each employee has a method to get their attributes.
-- Each employee has a method to simulate handling a call (run the thread).
-## Code Overview
-### Import Statements
-```   import random
-    import time
-    import sys
-    from threading import Thread, Lock
+This project simulates a call center with concurrent agents on **free-threaded CPython**. Calls arrive in waves and are routed to the first available agent in this order:
+
+1. Fresher  
+2. Technical lead  
+3. Project manager  
+4. If all are busy → drop the call (`busy_drops`)
+
+The same engine powers the **CLI** and the **FastAPI** dashboard.
+
+For install and run commands, see [README.md](README.md).
+
+---
+
+## Design
+
+### Agents (`call_center/models.py`)
+
+- `Agent` is a stable object with role `fresher` | `technical_lead` | `project_manager`.
+- State machine: `idle` ↔ `busy`, guarded by a `Lock` / `Condition`.
+- `try_assign()` claims an idle agent, picks a call duration from the configured range, starts a **new** daemon thread to sleep for that duration, then returns to `idle` and emits events.
+- Threads are not reused (Python cannot restart a thread); the agent object is reused.
+
+### Routing (`call_center/router.py`)
+
+`Router.route_call()` tries each fresher, then the technical lead, then the project manager. Outcomes: `FRESHER`, `TECHNICAL_LEAD`, `PROJECT_MANAGER`, or `BUSY`.
+
+### Statistics (`call_center/stats.py`)
+
+Thread-safe counters and total durations per fresher index, technical lead, project manager, plus `busy_drops`. `snapshot()` returns JSON-friendly data; `print_summary()` prints the CLI end report.
+
+### Events (`call_center/events.py`)
+
+In-process `EventBus` fans out `SimulationEvent` values (`wave`, `call_assigned`, `call_finished`, `busy`, `started`, `finished`, …) to subscriber queues. The web UI uses this for Server-Sent Events (SSE).
+
+### Engine (`call_center/engine.py`)
+
+`CallCenterSimulation`:
+
+- `set(...)` / `SimulationConfig.create(...)` validate and store parameters (optional `seed`).
+- `run_simulation(background=False)` runs the wave loop; `background=True` starts a daemon runner thread (used by the web app).
+- `stop()` requests interruption of wave sleeps and joins the runner when waiting.
+- `status_snapshot()` returns status, config, agent states, stats, and recent events.
+
+Wave loop: until `run_time` elapses or stop is requested → random call count → route each call → interruptible sleep until the next wave → wait for agents to become idle via `Condition.wait` → print summary.
+
+### Validation (`call_center/validation.py`)
+
+Single source of bounds (e.g. freshers 1–1000, run time ≤ 86400, sleep max > 0). Used by CLI and the web API so limits stay consistent.
+
+### CLI (`call_center/cli.py`)
+
+`python -m call_center.cli …` parses eight positional ints plus optional `--seed`, validates, and runs the simulation.
+
+### Compatibility shim (`call_center_simulation.py`)
+
+Re-exports `CallCenterSimulation`, `CallStatistics`, `main`, etc., so older imports and scripts keep working.
+
+### Web app (`web/app.py`)
+
+FastAPI app with one in-process simulation instance:
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET | `/` | HTML dashboard |
+| POST | `/api/simulation/start` | Start with JSON config |
+| POST | `/api/simulation/stop` | Request stop |
+| GET | `/api/simulation/status` | JSON snapshot |
+| GET | `/api/simulation/events` | SSE stream |
+
+Templates live under `web/templates/`; static assets under `web/static/`.
+
+---
+
+## Environment setup
+
+```bash
+brew install python-freethreading
+python3.14t -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python -c "import sys; assert not sys._is_gil_enabled(); print('GIL disabled')"
 ```
 
-### Class `Employee`
-This is a base class representing an employee in the call center.
+Dependencies are listed in `requirements.txt` and `pyproject.toml` (FastAPI, Uvicorn, Jinja2, httpx, pytest).
 
-Attributes
-- `lock`: A thread lock instance to ensure thread safety when modifying shared data.
-Methods
-- `__init__`: Initializes the thread.
-- `_set_call_duration`: Sets call duration based on a minimum and maximum limit.
-- `set`: Sets the employee attributes.
-- `get`: Gets the attributes of the employee.
-- `run`: Simulates the employee handling the call.
-### Classes Fresher, TechnicalLead, ProductManager
-These are subclasses of the `Employee` class, representing a fresher, technical lead, and product manager employees in the call center, respectively.
+---
 
-### Function `find_free_fresher_index`
-This function finds an available fresher employee in the call center by iterating through `freshers_iterable` (iterable). It returns the index of the first available fresher, or -1 if no freshers are available.
+## How to run
 
-### Class `CallStatistics`
-This class is for gathering call center statistics.
+### CLI
 
-The `__init__` method optionally accepts `number_of_freshers=0` to pre-allocate the `fresher_statistics` dictionary.
-
-Attributes
-- `fresher_statistics`: Dict of statistics mapped by fresher index. Contains counter and call duration.
-- `technical_lead_counter`: Count of calls handled by the technical lead.
-- `technical_lead_call_duration`: Total call duration handled by the technical lead.
-- `product_manager_counter`: Count of calls handled by the product manager.
-- `product_manager_call_duration`: Total call duration handled by the product manager.
-Methods
-- `add_fresher_call`: Adds statistics for a fresher who handled a call.
-- `add_technical_lead_call`: Adds statistics for a technical lead who handled a call.
-- `add_product_manager_call`: Adds statistics for a product manager who handled a call.
-- `print_summary`: Prints a summary of the call center statistics.
-### Class `CallCenterSimulation`
-This class represents the call center simulation.
-
-Attributes
-- `call_statistics`: Instance to keep track of the call statistics.
-- `lock`: A thread lock instance to ensure thread safety when modifying shared data.
-Methods
-- `set`: Sets the parameters of the simulation.
-- `assign_project_manager`: Assigns a call to the product manager.
-- `assign_technical_lead`: Assigns a call to the technical lead.
-- `assign_freshers`: Assigns a call to a fresher.
- -`termination_message`: Prints a termination message when all lines are busy.
-- `run_simulation`: Runs the call center simulation.
-
-### Main Function
-The main function sets up and runs the call center simulation. The parameters for the simulation are set using argument parse and read from the terminal.
-
-Example:
-```
-python script_name.py 8 60 1 5 2 5 10 20
+```bash
+source .venv/bin/activate
+python -m call_center.cli 8 60 1 5 2 5 10 20 --seed 1
 ```
 
-The other option is to read the methods and classes in a seperate python file and set the parammeters manually. 
+Meaning: 8 freshers, 60s run, 1–5 calls/wave, 2–5s between waves, 10–20s call duration.
 
-Example (see test.py):
-```
-from call_center_simulation import CallCenterSimulation
+### Programmatic
 
-def main():
-    """The main function to run the simulation."""
-    try:
-        # Set the parameters of the call center simulation
-        number_of_freshers = 3
-        run_time = 20
-        min_max_calls_per_wave = (1, 3)
-        min_max_sleep_interval = (5, 6)
-        min_max_call_duration = (5, 10)
+```python
+from call_center import CallCenterSimulation
 
-        # Create and set up the call center simulation
-        call_center_simulation = CallCenterSimulation()
-        call_center_simulation.set(number_of_freshers, run_time, min_max_calls_per_wave, min_max_sleep_interval, min_max_call_duration)
-        
-        # Run the simulation
-        call_center_simulation.run_simulation()
-
-    except KeyboardInterrupt:
-        print("\nSimulation interrupted.")
-    else:
-        print("\nSimulation completed.")
-        return True
-
-if __name__ == "__main__":
-    if main():
-        print("\n ---- Test completed. ----\n")
+sim = CallCenterSimulation()
+sim.set(
+    number_of_freshers=3,
+    run_time=20,
+    min_max_calls_per_wave=(1, 3),
+    min_max_sleep_interval=(5, 6),
+    min_max_call_duration=(5, 10),
+    seed=42,
+)
+sim.run_simulation()
 ```
 
-### How to Run
-Run this Python script directly to start the call center simulation. During the simulation, the script will print out log messages indicating which employees are handling which calls, how long each call lasts, and summary statistics at the end of the simulation.
+Also see `test.py` (short demo) and `stress.py` (heavier load).
 
-### Internal dependencies
+### Web dashboard
 
-![The graph shows internal depenedencies during running the code with the following parameters:
-``` python script_name.py 8 60 1 5 2 5 10 20 ```](pycallgraph.png)
+```bash
+source .venv/bin/activate
+PYTHON_GIL=0 uvicorn web.app:app --host 127.0.0.1 --port 8000
+```
 
+Open http://127.0.0.1:8000.
 
+### Tests
+
+```bash
+source .venv/bin/activate
+pytest -q
+```
+
+Coverage includes stats concurrency smoke, router escalation, engine with mocked sleep, GIL-off check on free-threaded builds, and FastAPI start/status/stop.
+
+---
+
+## Parameter bounds (summary)
+
+| Parameter | Constraint |
+|-----------|------------|
+| `number_of_freshers` | 1 … 1000 |
+| `run_time` | (0, 86400] seconds (float allowed for web demos) |
+| calls per wave | 0 ≤ min ≤ max ≤ 10000 |
+| sleep interval | 0 ≤ min ≤ max ≤ 86400 and **max > 0** |
+| call duration | 0 ≤ min ≤ max ≤ 86400 |
+
+Invalid values raise `TypeError` / `ValueError` (CLI surfaces them via argparse).
+
+---
+
+## Free-threading notes
+
+- Use `python3.14t` (or another build with `Py_GIL_DISABLED`).
+- Verify with `sys._is_gil_enabled() is False`.
+- Workload is mostly timed waits; locks still protect shared stats and agent state so the design remains correct when the GIL is off.
