@@ -184,8 +184,8 @@ class CallCenterSimulation:
         if not (0 <= min_max_calls_per_wave[0] <= min_max_calls_per_wave[1] and min_max_calls_per_wave[1] <= 10000):
             raise ValueError("Invalid min_max_calls_per_wave range")
         if not (0 < min_max_sleep_interval[0] <= min_max_sleep_interval[1]):
-            raise ValueError("Invalid min_max_sleep_interval range")
-        if not (0 < min_max_call_duration[0] <= min_max_call_duration[1]):
+            raise ValueError("Invalid min_max_sleep_interval range, must be strictly positive to prevent CPU spinning")
+        if not (0 <= min_max_call_duration[0] <= min_max_call_duration[1]):
             raise ValueError("Invalid min_max_call_duration range")
 
         self.number_of_freshers = number_of_freshers
@@ -465,7 +465,7 @@ def main():
         if args.min_calls_per_wave < 0:
             parser.error("min_calls_per_wave must be non-negative")
         if args.min_sleep_interval <= 0:
-            parser.error("min_sleep_interval must be strictly positive")
+            parser.error("min_sleep_interval must be strictly positive to prevent CPU spinning")
         if args.min_call_duration <= 0:
             parser.error("min_call_duration must be strictly positive")
         if args.max_calls_per_wave > 10000:
