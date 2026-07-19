@@ -120,10 +120,12 @@ class CallStatistics:
         """
         try:
             stats = self.fresher_statistics[index]
-            stats['counter'] += 1
-            stats['call_duration'] += call_duration
         except KeyError:
-            self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
+            stats = {'counter': 0, 'call_duration': 0}
+            self.fresher_statistics[index] = stats
+
+        stats['counter'] += 1
+        stats['call_duration'] += call_duration
 
     def add_technical_lead_call(self, call_duration):
         """Add statistics for a technical lead who handled a call.
