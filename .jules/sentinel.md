@@ -1,4 +1,4 @@
-## 2024-05-22 - [Missing Input Validation in Simulation Arguments]
-**Vulnerability:** Application crashed or hung leading to potential resource exhaustion (DoS) when providing malformed simulation bounds (e.g. negative time limits, bounds where min > max, huge number of freshers).
-**Learning:** Simulation setup methods receiving unverified CLI arguments must validate ranges, types, and strict constraints before instantiating massive numbers of threads.
-**Prevention:** Implement guard clauses explicitly verifying boundary conditions early in the configuration logic rather than relying on underlying modules (like `secrets.SystemRandom().randint`) to throw obscure failures.
+## 2024-05-23 - Missing Input Bounds Validation on DoS Vector
+**Vulnerability:** The simulation allowed negative thread bounds (`number_of_freshers`) and un-ordered/negative values for the tuple duration thresholds (`min_max_calls_per_wave`, `min_max_call_duration`), leading to deep `ValueError` crashes in `secrets` library or risking infinite loops and un-bound CPU exhaustion.
+**Learning:** Simulation systems accepting dynamic object generation and threaded sleeping states often fail to cleanly bounds-check parameters, which can be an easy DoS vector.
+**Prevention:** Always add explicit input validation (`ValueError` testing bounds, negatives, and tuple ordering) for all simulation parameters early in class constructors to fail fast and securely before utilizing resources or deferring checks to the internal random engine.
