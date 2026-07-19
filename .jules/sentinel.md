@@ -1,5 +1,4 @@
-## 2024-05-24 - Missing Input Validation DoS risk
-
-**Vulnerability:** The `CallCenterSimulation.set()` method lacked input validation for `number_of_freshers`, allowing unbounded thread creation.
-**Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
-**Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
+## $(date +%Y-%m-%d) - Input Validation Missing DoS Prevention
+**Vulnerability:** Command-line inputs for simulation parameters (e.g. `min_call_duration`, `number_of_freshers`) lacked boundary and logic validation, permitting values like negative times or `min > max` ranges, leading to unhandled Python `ValueError` exceptions (from `time.sleep` and `secrets.SystemRandom().randint`).
+**Learning:** Even internal CLI tools must sanitize inputs. `argparse` alone only handles type conversion, but fails to check logic. Unchecked values crashing random/sleep functions can cause silent failures or obscure errors.
+**Prevention:** Always implement logic validation immediately after `parser.parse_args()`. Specifically, verify numerical bounds (positive values) and ranges (`min <= max`) before execution.
