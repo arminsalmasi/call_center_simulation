@@ -119,9 +119,11 @@ class CallStatistics:
             call_duration (int): Duration of the call handled by the fresher.
         """
         try:
-            stat = self.fresher_statistics[index]
-            stat['counter'] += 1
-            stat['call_duration'] += call_duration
+            # ⚡ Bolt: Use EAFP (try/except) and local variable assignment
+            # to reduce dictionary lookups in hot loops
+            stats = self.fresher_statistics[index]
+            stats['counter'] += 1
+            stats['call_duration'] += call_duration
         except KeyError:
             self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
