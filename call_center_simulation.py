@@ -336,7 +336,11 @@ class CallCenterSimulation:
         time.sleep(self.min_max_call_duration[1]+10)
 
         # Finish up the remaining calls by joining all threads
+        timeout_end = time.time() + 60
         while True:
+            if time.time() > timeout_end:
+                logging.warning("Timeout reached while waiting for remaining calls to finish.")
+                break
             for fresher in freshers:
                 if not(fresher.is_alive()) and fresher.was_called_before:
                     fresher.join(timeout=2)
@@ -403,7 +407,11 @@ class CallCenterSimulation:
             time.sleep(self.min_max_call_duration[1]+10)
             
             # Finish up the remaining calls by joining all threads
+            timeout_end = time.time() + 60
             while True:
+                if time.time() > timeout_end:
+                    logging.warning("Timeout reached while waiting for remaining calls to finish.")
+                    break
                 for fresher in freshers:
                     if not(fresher.is_alive()) and fresher.was_called_before:
                         fresher.join(timeout=2)
