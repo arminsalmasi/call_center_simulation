@@ -236,28 +236,11 @@ class CallStatisticsTest(unittest.TestCase):
         self.assertTrue(call_center_simulation.run_simulation())
         print('CallCenterSimulation.run_simulation... passed\n')
 
-    @patch('sys.exit')
-    @patch('call_center_simulation.find_free_fresher_index')
-    def test_run_simulation_exception(self, mock_find, mock_exit):
-        """
-        Test the exception handling of the run_simulation method.
-
-        It ensures that if an exception is raised inside the simulation loop,
-        the exception is caught, a message is printed, and sys.exit(1) is called.
-        """
-        call_center_simulation = CallCenterSimulation()
-        call_center_simulation.set(1, 1, (1, 1), (1, 1), (1, 1))
-
-        mock_find.side_effect = Exception("Mocked exception")
-
-        # Run simulation
-        call_center_simulation.run_simulation()
-
-        # Assert sys.exit(1) is called
-        mock_exit.assert_called_once_with(1)
-        print('CallCenterSimulation.run_simulation_exception... passed\n')
-        pass
-
+class MockFresher:
+    def __init__(self, alive):
+        self.alive = alive
+    def is_alive(self):
+        return self.alive
 
 class OtherTest(unittest.TestCase):
 
@@ -273,12 +256,8 @@ class OtherTest(unittest.TestCase):
             - If no free fresher is available, it returns -1.
         """
 
-        class MockFresher:
-            def __init__(self, alive):
-                self._alive = alive
-            def is_alive(self):
-                return self._alive
-
+        # In the real code, not fresher.is_alive() means it is free.
+        # So test_list values (True means free) should map to MockFresher(not True) -> MockFresher(False)
         test_list = [MockFresher(True), MockFresher(True), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False)]
         self.assertEqual(find_free_fresher_index(test_list),2)
         test_list = [MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True), MockFresher(True)]

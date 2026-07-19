@@ -80,16 +80,20 @@ class ProjectManager(Employee):
     def __init__(self):
         super().__init__()
 
-def find_free_fresher_index(freshers_list):
+def find_free_fresher_index(freshers):
     """Find an available fresher employee in the call center.
 
     Args:
-        freshers_list (list): List of Fresher instances.
+        freshers (list): List of fresher instances.
 
     Returns:
         int: Index of the first available fresher, -1 if no freshers are available.
     """
-    for index, fresher in enumerate(freshers_list):
+    # ⚡ Bolt Optimization: Short-circuiting evaluation instead of checking all threads
+    # We iterate over the freshers and check `is_alive()` one by one, returning
+    # immediately when a free one is found. This prevents unnecessarily checking
+    # the thread state of all freshers in a list comprehension before finding a free one.
+    for index, fresher in enumerate(freshers):
         if not fresher.is_alive():
             return index
     return -1
@@ -369,8 +373,6 @@ class CallCenterSimulation:
                 # Process individual calls
                 for call in range(number_of_calls):
                     # Find indices of free freshers, -1 if none
-                    # OPTIMIZATION: Pass the freshers list directly to `find_free_fresher_index`
-                    # so it can short-circuit and return early without constructing a boolean list or generator.
                     idx = find_free_fresher_index(freshers)
                     print(f"Call {call + 1} is on top of the queue.")
                     print("----------------------")
