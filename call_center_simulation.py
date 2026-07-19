@@ -15,7 +15,7 @@
         - Each employee has a method to simulate handling a call (run the tread).
  """
 # Imports
-import secrets
+import random
 import time
 import sys
 import logging
@@ -40,7 +40,7 @@ class Employee(Thread):
         Returns:
             int: Random number between the min and max call duration range.
         """
-        return secrets.SystemRandom().randint(self.min_max_call_duration[0], self.min_max_call_duration[1])
+        return random.randint(self.min_max_call_duration[0], self.min_max_call_duration[1])
 
     def set(self, name, min_max_call_duration):
         """Sets the employee attributes.
@@ -53,14 +53,6 @@ class Employee(Thread):
         self.min_max_call_duration = min_max_call_duration
         self.call_duration = self._set_call_duration()
         self.was_called_before = False
-
-    def get(self):
-        """Get the attributes of the employee.
-
-        Returns:
-            tuple: The name of the employee, call duration, was_called_before flag, and min_max_call_duration.
-        """
-        return (self.name, self.call_duration, self.was_called_before, self.min_max_call_duration)
 
     def run(self):
         """Run method that will be invoked when the thread is started. Simulates the employee handling the call."""
@@ -88,17 +80,17 @@ class ProjectManager(Employee):
     def __init__(self):
         super().__init__()
 
-def find_free_fresher_index(bool_list):
+def find_free_fresher_index(freshers):
     """Find an available fresher employee in the call center.
 
     Args:
-        bool_list (list): List of booleans indicating which freshers are available.
+        freshers (list): List of fresher employees.
 
     Returns:
         int: Index of the first available fresher, -1 if no freshers are available.
     """
-    for index, value in enumerate(bool_list):
-        if value:
+    for index, fresher in enumerate(freshers):
+        if not fresher.is_alive():
             return index
     return -1
 
@@ -106,16 +98,14 @@ class CallStatistics:
     """Class for gathering call center statistics.
 
     Attributes:
-        fresher_counter (list): List of counts of calls handled by each fresher.
-        fresher_call_duration (list): List of total call duration handled by each fresher.
+        fresher_statistics (dict): Dict of statistics mapped by fresher index. Contains counter and call duration.
         technical_lead_counter (int): Count of calls handled by the technical lead.
         technical_lead_call_duration (int): Total call duration handled by the technical lead.
         project_manager_counter (int): Count of calls handled by the project manager.
         project_manager_call_duration (int): Total call duration handled by the project manager.
     """
     def __init__(self):
-        self.fresher_counter = []
-        self.fresher_call_duration = []
+        self.fresher_statistics = {}
         self.technical_lead_counter = 0
         self.technical_lead_call_duration = 0
         self.project_manager_counter = 0
@@ -128,11 +118,10 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        while len(self.fresher_counter) <= index:
-            self.fresher_counter.append(0)
-            self.fresher_call_duration.append(0)
-        self.fresher_counter[index] += 1
-        self.fresher_call_duration[index] += call_duration
+        if index not in self.fresher_statistics:
+            self.fresher_statistics[index] = {'counter': 0, 'call_duration': 0}
+        self.fresher_statistics[index]['counter'] += 1
+        self.fresher_statistics[index]['call_duration'] += call_duration
 
     def add_technical_lead_call(self, call_duration):
         """Add statistics for a technical lead who handled a call.
@@ -156,8 +145,8 @@ class CallStatistics:
         """Prints a summary of the call center statistics."""
         print("----------------------------------------------")
         print('Summary:')
-        for i, f in enumerate(self.fresher_counter):
-            print(f'fresher {i + 1}: answered {f} calls and spent {self.fresher_call_duration[i]} seconds on the phone.')
+        for i, stats in sorted(self.fresher_statistics.items()):
+            print(f'fresher {i + 1}: answered {stats["counter"]} calls and spent {stats["call_duration"]} seconds on the phone.')
         print(f'Technical lead: answered {self.technical_lead_counter} calls and spent {self.technical_lead_call_duration} seconds on the phone.')
         print(f'Project manager: answered {self.project_manager_counter} calls and spent {self.project_manager_call_duration} seconds on the phone.')
 
@@ -182,29 +171,24 @@ class CallCenterSimulation:
             min_max_sleep_interval (tuple): Min and max sleep interval between call waves.
             min_max_call_duration (tuple): Min and max duration of calls.
         """
-        # Security Enhancement: Validate inputs to prevent DoS via excessive resources and ensure logical correctness
-        if not isinstance(number_of_freshers, int) or number_of_freshers < 0 or number_of_freshers > 10000:
-            raise ValueError("number_of_freshers must be an integer between 0 and 10000")
-        if not isinstance(run_time, (int, float)) or run_time < 0:
-            raise ValueError("run_time must be a non-negative number")
-
-        for name, val in [("min_max_calls_per_wave", min_max_calls_per_wave),
-                          ("min_max_sleep_interval", min_max_sleep_interval),
-                          ("min_max_call_duration", min_max_call_duration)]:
-            if not isinstance(val, tuple) or len(val) != 2:
-                raise ValueError(f"{name} must be a tuple of length 2")
-            if not isinstance(val[0], (int, float)) or not isinstance(val[1], (int, float)):
-                 raise ValueError(f"{name} must contain numerical values")
-            if val[0] < 0 or val[1] < 0:
-                raise ValueError(f"{name} must contain non-negative values")
-            if val[0] > val[1]:
-                raise ValueError(f"{name} minimum cannot be greater than maximum")
+        # Security Enhancement: Validate inputs to prevent Resource Exhaustion (DoS risk)
+        if not (0 <= number_of_freshers <= 1000):
+            raise ValueError("number_of_freshers must be between 0 and 1000")
+        if run_time < 0 or run_time > 86400:  # Max 1 day simulation
+            raise ValueError("run_time must be between 0 and 86400")
+        if not (0 <= min_max_calls_per_wave[0] <= min_max_calls_per_wave[1] and min_max_calls_per_wave[1] <= 10000):
+            raise ValueError("Invalid min_max_calls_per_wave range")
+        if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1]):
+            raise ValueError("Invalid min_max_sleep_interval range")
+        if not (0 <= min_max_call_duration[0] <= min_max_call_duration[1]):
+            raise ValueError("Invalid min_max_call_duration range")
 
         self.number_of_freshers = number_of_freshers
         self.run_time = run_time
         self.min_max_calls_per_wave = min_max_calls_per_wave
         self.min_max_sleep_interval = min_max_sleep_interval
         self.min_max_call_duration = min_max_call_duration
+        self.call_statistics = CallStatistics(number_of_freshers)
 
     def assign_project_manager(self, technical_lead, project_manager):
         """Assign a call to the project manager.
@@ -253,12 +237,11 @@ class CallCenterSimulation:
 
         return technical_lead
 
-    def assign_freshers(self, freshers, fresher_counter, idx):
+    def assign_freshers(self, freshers, idx):
         """Assign a call to a fresher.
 
         Args:
             freshers (list): List of fresher instances.
-            fresher_counter (list): List of fresher call counters.
             idx (int): Index of the fresher to assign the call.
         """
         print(f"{freshers[idx].name} is {'busy' if freshers[idx].is_alive() else 'free'}.")
@@ -268,7 +251,6 @@ class CallCenterSimulation:
                 freshers[idx] = Fresher()
                 freshers[idx].set(f"fresher {idx + 1}", self.min_max_call_duration)
             freshers[idx].start()
-            fresher_counter[idx] += 1
             self.call_statistics.add_fresher_call(idx, freshers[idx].call_duration)
         finally:
             self.lock.release()
@@ -283,9 +265,12 @@ class CallCenterSimulation:
         print("All lines are busy. Please try again later.")
         print("----------------------------------------------")
 
-    def run_simulation(self):
-        """Runs the call center simulation."""
-        # Initialize freshers, technical lead, and project manager
+    def _initialize_employees(self):
+        """Initializes the freshers, technical lead, and project manager.
+
+        Returns:
+            tuple: A tuple containing the list of freshers, the technical lead, and the project manager.
+        """
         freshers = []
         for i in range(self.number_of_freshers):
             fresher = Fresher()
@@ -295,10 +280,80 @@ class CallCenterSimulation:
         technical_lead.set("technical lead", self.min_max_call_duration)
         project_manager = ProjectManager()
         project_manager.set("project manager", self.min_max_call_duration)
+        return freshers, technical_lead, project_manager
+
+    def _process_call_wave(self, loop_number, freshers, fresher_counter, technical_lead, project_manager):
+        """Processes a single wave of calls.
+
+        Args:
+            loop_number (int): The current loop iteration number.
+            freshers (list): List of fresher instances.
+            fresher_counter (list): List of counts for calls handled by each fresher.
+            technical_lead (TechnicalLead): The technical lead instance.
+            project_manager (ProjectManager): The project manager instance.
+
+        Returns:
+            tuple: The updated technical lead and project manager instances.
+        """
+        number_of_calls = random.randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
+        print("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
+        print(f"Incoming calls: {number_of_calls}, loop: {loop_number}")
+        print("----------------------------------------------")
+        # Process individual calls
+        for call in range(number_of_calls):
+            # Find indices of free freshers, -1 if none
+            idx = find_free_fresher_index([not fresher.is_alive() for fresher in freshers])
+            print(f"Call {call + 1} is on top of the queue.")
+            print("----------------------")
+
+            if idx > -1:
+                # If any of the freshers ia available then assign the call to that fresher
+                # If the employee was in a call before then the thread should be re-initialized
+                self.assign_freshers(freshers, fresher_counter, idx)
+            else:
+                # If all freshers are busy then assign the call to the technical lead
+                if not technical_lead.is_alive():
+                    # If the employee was in a call before then the thread should be re-initialized
+                    technical_lead = self.assign_technical_lead(technical_lead)
+                else:
+                    # If the technical lead is busy then assign the call to the project manager
+                    if not project_manager.is_alive():
+                        # If the employee was in a call before then the thread should be re-initialized
+                        project_manager = self.assign_project_manager(technical_lead, project_manager)
+                    else:
+                        self.termination_message(project_manager)
+        return technical_lead, project_manager
+
+    def _finish_remaining_calls(self, freshers, technical_lead, project_manager):
+        """Waits for all remaining calls to finish by joining threads.
+
+        Args:
+            freshers (list): List of fresher instances.
+            technical_lead (TechnicalLead): The technical lead instance.
+            project_manager (ProjectManager): The project manager instance.
+        """
+        # Safty time margin to finish up the remaining calls
+        time.sleep(self.min_max_call_duration[1]+10)
+
+        # Finish up the remaining calls by joining all threads
+        while True:
+            for fresher in freshers:
+                if not(fresher.is_alive()) and fresher.was_called_before:
+                    fresher.join(timeout=2)
+            if not(technical_lead.is_alive()) and technical_lead.was_called_before:
+                    technical_lead.join(timeout=2)
+            if not(project_manager.is_alive()) and project_manager.was_called_before:
+                    project_manager.join(timeout=2)
+
+            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all([not(fresher.is_alive()) for fresher in freshers]):
+                break
+
+    def run_simulation(self):
+        """Runs the call center simulation."""
+        freshers, technical_lead, project_manager = self._initialize_employees()
 
         # Run the simulation
         end_time = time.time() + self.run_time
-        fresher_counter = [0] * self.number_of_freshers
 
         # Exception handling
         loop_number = 1
@@ -307,21 +362,21 @@ class CallCenterSimulation:
                 if time.time() >= end_time:
                     break
                 # Process call waves
-                number_of_calls = secrets.SystemRandom().randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
+                number_of_calls = random.randint(self.min_max_calls_per_wave[0], self.min_max_calls_per_wave[1])
                 print("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n")
                 print(f"Incoming calls: {number_of_calls}, loop: {loop_number}")
                 print("----------------------------------------------")
                 # Process individual calls
                 for call in range(number_of_calls):
                     # Find indices of free freshers, -1 if none
-                    idx = find_free_fresher_index([not fresher.is_alive() for fresher in freshers])
+                    idx = find_free_fresher_index(freshers)
                     print(f"Call {call + 1} is on top of the queue.")
                     print("----------------------")
 
                     if idx > -1:
                         # If any of the freshers ia available then assign the call to that fresher
                         # If the employee was in a call before then the thread should be re-initialized 
-                        self.assign_freshers(freshers, fresher_counter, idx)
+                        self.assign_freshers(freshers, idx)
                     else:
                         # If all freshers are busy then assign the call to the technical lead
                         if not technical_lead.is_alive():
@@ -336,7 +391,7 @@ class CallCenterSimulation:
                                 self.termination_message(project_manager)
 
                 # Wait for the next call wave
-                time_interval = secrets.SystemRandom().randint(self.min_max_sleep_interval[0], self.min_max_sleep_interval[1])
+                time_interval = random.randint(self.min_max_sleep_interval[0], self.min_max_sleep_interval[1])
                 print(f"Waiting for {time_interval} seconds before initiating the next wave of calls.")
                 print("----------------------------------------------")
 
@@ -357,7 +412,7 @@ class CallCenterSimulation:
                 if not(project_manager.is_alive()) and project_manager.was_called_before:
                         project_manager.join(timeout=2)
                 
-                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all([not(fresher.is_alive()) for fresher in freshers]):
+                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not(fresher.is_alive()) for fresher in freshers):
                     break
 
             # Print call statistics
@@ -387,6 +442,25 @@ def main():
 
         # Parse the arguments
         args = parser.parse_args()
+
+        # Validate arguments
+        if args.number_of_freshers <= 0:
+            parser.error("number_of_freshers must be greater than 0")
+        if args.run_time <= 0:
+            parser.error("run_time must be greater than 0")
+        if args.min_calls_per_wave < 0:
+            parser.error("min_calls_per_wave must be non-negative")
+        if args.min_sleep_interval < 0:
+            parser.error("min_sleep_interval must be non-negative")
+        if args.min_call_duration <= 0:
+            parser.error("min_call_duration must be strictly positive")
+
+        if args.min_calls_per_wave > args.max_calls_per_wave:
+            parser.error("min_calls_per_wave cannot be greater than max_calls_per_wave")
+        if args.min_sleep_interval > args.max_sleep_interval:
+            parser.error("min_sleep_interval cannot be greater than max_sleep_interval")
+        if args.min_call_duration > args.max_call_duration:
+            parser.error("min_call_duration cannot be greater than max_call_duration")
 
         # Set the parameters of the call center simulation
         number_of_freshers = args.number_of_freshers

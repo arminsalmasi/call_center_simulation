@@ -1,4 +1,5 @@
-## 2024-05-17 - Missing Input Validation on Command-line Simulation Configuration
-**Vulnerability:** The simulation engine lacked input boundaries for configuration parameters (e.g. number_of_freshers, run_time, call_duration limits), enabling Resource Exhaustion via overly large numbers of threads, invalid simulation logic via negative limits, and exposing stack traces when internal logic failed due to invalid types.
-**Learning:** Python properties and command-line arguments (even when parsed via argparse to type `int`) still need boundary and logical checks within the core domain objects to ensure robustness and safe state limits, preventing internal unhandled errors or Denial of Service through thread allocation.
-**Prevention:** Always validate configuration bounds (min/max size, non-negative values) in setter methods of core classes, and catch application-specific configuration exceptions securely at the outermost boundary (main block) to prevent stack trace leakage.
+## 2024-05-24 - Missing Input Validation DoS risk
+
+**Vulnerability:** The `CallCenterSimulation.set()` method lacked input validation for `number_of_freshers`, allowing unbounded thread creation.
+**Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
+**Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
