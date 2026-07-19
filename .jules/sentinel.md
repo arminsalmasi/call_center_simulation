@@ -3,8 +3,7 @@
 **Vulnerability:** The `CallCenterSimulation.set()` method lacked input validation for `number_of_freshers`, allowing unbounded thread creation.
 **Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
 **Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
-
-## 2026-05-31 - Unbounded Thread Creation and Resource Exhaustion Risk
-**Vulnerability:** The CLI arguments for `number_of_freshers`, `run_time`, `max_sleep_interval`, and `max_call_duration` lacked explicit upper bounds, allowing an attacker to specify extremely large values leading to Resource Exhaustion (DoS) via unbounded thread creation or excessively long blocking operations.
-**Learning:** Command-line inputs that dictate the number of threads created or the duration of blocking operations must always be strictly validated and bounded to prevent excessive system resource consumption.
-**Prevention:** Always enforce explicit upper bounds and valid range checks on parameters directly influencing resource allocation or long-running operations.
+## 2026-05-31 - Unbounded Parameters Leading to Resource Exhaustion (DoS)
+**Vulnerability:** Simulation parameters (`min_max_sleep_interval` and `min_max_call_duration`) lacked upper bounds.
+**Learning:** This oversight could result in excessively long sleep durations or blocking operations, allowing a user to effectively perform a DoS attack on the simulation threads by passing arbitrarily large integers via arguments.
+**Prevention:** Always enforce explicit upper bounds on input configuration values (like timeouts, intervals, and freshers) to constrain process execution time and prevent unbounded blocking operations.
