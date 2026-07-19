@@ -451,17 +451,24 @@ def main():
         # Parse the arguments
         args = parser.parse_args()
 
-        # Security Enhancement: Validate arguments independently to prevent DoS via unhandled exceptions
+        # Validate arguments
         if not (0 < args.number_of_freshers <= 1000):
             parser.error("number_of_freshers must be between 1 and 1000")
         if not (0 < args.run_time <= 86400):
             parser.error("run_time must be between 1 and 86400")
-        if not (0 <= args.min_calls_per_wave <= args.max_calls_per_wave <= 10000):
-            parser.error("invalid calls_per_wave range (0-10000)")
-        if not (0 <= args.min_sleep_interval <= args.max_sleep_interval <= 86400):
-            parser.error("invalid sleep_interval range (0-86400)")
-        if not (0 < args.min_call_duration <= args.max_call_duration <= 86400):
-            parser.error("invalid call_duration range (1-86400)")
+        if args.min_calls_per_wave < 0:
+            parser.error("min_calls_per_wave must be non-negative")
+        if args.min_sleep_interval < 0:
+            parser.error("min_sleep_interval must be non-negative")
+        if args.min_call_duration <= 0:
+            parser.error("min_call_duration must be strictly positive")
+
+        if args.min_calls_per_wave > args.max_calls_per_wave:
+            parser.error("min_calls_per_wave cannot be greater than max_calls_per_wave")
+        if args.min_sleep_interval > args.max_sleep_interval:
+            parser.error("min_sleep_interval cannot be greater than max_sleep_interval")
+        if args.min_call_duration > args.max_call_duration:
+            parser.error("min_call_duration cannot be greater than max_call_duration")
 
         # Set the parameters of the call center simulation
         number_of_freshers = args.number_of_freshers
