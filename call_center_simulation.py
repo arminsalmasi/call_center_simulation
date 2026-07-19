@@ -370,8 +370,9 @@ class CallCenterSimulation:
                 print("----------------------------------------------")
                 # Process individual calls
                 for call in range(number_of_calls):
-                    # Find indices of free freshers, -1 if none
-                    # OPTIMIZATION: Generator expression prevents eager evaluation of thread states
+                    # Find indices of free freshers, -1 if none.
+                    # ⚡ Bolt optimization: Use generator expression instead of list comprehension
+                    # for lazy evaluation of .is_alive() state, avoiding significant overhead.
                     idx = find_free_fresher_index(not fresher.is_alive() for fresher in freshers)
                     print(f"Call {call + 1} is on top of the queue.")
                     print("----------------------")
