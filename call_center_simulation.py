@@ -182,8 +182,9 @@ class CallCenterSimulation:
             raise ValueError("run_time must be strictly positive and not exceed 86400")
         if not (0 <= min_max_calls_per_wave[0] <= min_max_calls_per_wave[1] and min_max_calls_per_wave[1] <= 10000):
             raise ValueError("Invalid min_max_calls_per_wave range")
-        if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1]) or min_max_sleep_interval[1] == 0:
-            raise ValueError("Invalid min_max_sleep_interval range: max_sleep_interval must be > 0 to prevent DoS")
+        # Ensure max sleep interval is strictly positive to prevent CPU spinning/DoS
+        if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1]) or min_max_sleep_interval[1] <= 0:
+            raise ValueError("Invalid min_max_sleep_interval range")
         if not (0 <= min_max_call_duration[0] <= min_max_call_duration[1]):
             raise ValueError("Invalid min_max_call_duration range")
 
@@ -465,8 +466,9 @@ def main():
             parser.error("min_calls_per_wave must be non-negative")
         if args.min_sleep_interval < 0:
             parser.error("min_sleep_interval must be non-negative")
+        # Ensure max sleep interval is strictly positive to prevent CPU spinning/DoS
         if args.max_sleep_interval <= 0:
-            parser.error("max_sleep_interval must be strictly positive to prevent CPU spinning")
+            parser.error("max_sleep_interval must be strictly positive")
         if args.min_call_duration <= 0:
             parser.error("min_call_duration must be strictly positive")
         if args.max_calls_per_wave > 10000:
