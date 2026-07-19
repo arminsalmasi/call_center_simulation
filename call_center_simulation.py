@@ -80,16 +80,16 @@ class ProjectManager(Employee):
     def __init__(self):
         super().__init__()
 
-def find_free_fresher_index(freshers_iterable):
+def find_free_fresher_index(iterable):
     """Find an available fresher employee in the call center.
 
     Args:
-        freshers_iterable (iterable): Iterable of fresher employees.
+        iterable (iterable): Iterable of fresher employees.
 
     Returns:
         int: Index of the first available fresher, -1 if no freshers are available.
     """
-    for index, fresher in enumerate(freshers_iterable):
+    for index, fresher in enumerate(iterable):
         if not fresher.is_alive():
             return index
     return -1
@@ -302,7 +302,7 @@ class CallCenterSimulation:
         # Process individual calls
         for call in range(number_of_calls):
             # Find indices of free freshers, -1 if none
-            idx = find_free_fresher_index(freshers)
+            idx = find_free_fresher_index(fresher for fresher in freshers)
             print(f"Call {call + 1} is on top of the queue.")
             print("----------------------")
 
