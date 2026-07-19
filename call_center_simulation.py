@@ -105,8 +105,7 @@ class CallStatistics:
         project_manager_call_duration (int): Total call duration handled by the project manager.
     """
     def __init__(self, number_of_freshers=0):
-        # ⚡ Bolt: Pre-allocate dict for known size to avoid resizing overhead
-        self.fresher_statistics = {i: {'counter': 0, 'call_duration': 0} for i in range(number_of_freshers)}
+        self.fresher_statistics = {i: {'counter': 0, 'call_duration': 0} for i in range(number_of_freshers)} if number_of_freshers > 0 else {}
         self.technical_lead_counter = 0
         self.technical_lead_call_duration = 0
         self.project_manager_counter = 0
@@ -120,9 +119,9 @@ class CallStatistics:
             call_duration (int): Duration of the call handled by the fresher.
         """
         try:
-            stats = self.fresher_statistics[index]
-            stats['counter'] += 1
-            stats['call_duration'] += call_duration
+            stat = self.fresher_statistics[index]
+            stat['counter'] += 1
+            stat['call_duration'] += call_duration
         except KeyError:
             self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
