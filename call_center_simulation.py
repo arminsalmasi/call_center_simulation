@@ -455,8 +455,7 @@ def main():
         # Parse the arguments
         args = parser.parse_args()
 
-        # Validate arguments
-        # Security Enhancement: Enforce explicit upper bounds for CLI arguments to prevent DoS via resource exhaustion
+        # Validate arguments with upper bounds to prevent DoS and ensure graceful failure
         if args.number_of_freshers <= 0 or args.number_of_freshers > 1000:
             parser.error("number_of_freshers must be between 1 and 1000")
         if args.run_time <= 0 or args.run_time > 86400:
