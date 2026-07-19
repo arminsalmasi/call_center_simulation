@@ -462,15 +462,15 @@ def main():
         if args.min_calls_per_wave < 0:
             parser.error("min_calls_per_wave must be non-negative")
         if args.max_calls_per_wave > 10000:
-            parser.error("max_calls_per_wave must be at most 10000")
+            parser.error("max_calls_per_wave cannot be greater than 10000")
         if args.min_sleep_interval < 0:
             parser.error("min_sleep_interval must be non-negative")
         if args.max_sleep_interval > 86400:
-            parser.error("max_sleep_interval must be at most 86400")
+            parser.error("max_sleep_interval cannot be greater than 86400")
         if args.min_call_duration <= 0:
             parser.error("min_call_duration must be strictly positive")
         if args.max_call_duration > 86400:
-            parser.error("max_call_duration must be at most 86400")
+            parser.error("max_call_duration cannot be greater than 86400")
 
         if not (args.min_calls_per_wave <= args.max_calls_per_wave <= 10000):
             parser.error("max_calls_per_wave must be greater than or equal to min_calls_per_wave and <= 10000")
