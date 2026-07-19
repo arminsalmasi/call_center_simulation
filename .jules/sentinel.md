@@ -4,7 +4,8 @@
 **Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
 **Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
 
-## 2026-06-19 - Unbounded CLI Arguments Risk
-**Vulnerability:** Resource Exhaustion (DoS) risk due to unbounded `argparse` inputs in `call_center_simulation.py`, allowing unbounded thread creation and indefinitely long blocking operations.
-**Learning:** Inner class parameter validations (if they exist) aren't enough when CLI inputs directly dictate memory allocation (e.g. `number_of_freshers` spawning threads) and execution durations. Without explicit upper limits, malicious or malformed input can easily cause the simulation to consume all memory or hang.
-**Prevention:** Always enforce explicit, sane upper bounds on CLI parameters during `argparse` validation using `parser.error()` before instantiating objects or running loops, even if those values are logically "valid" lower down.
+## 2024-06-19 - Unhandled Exception DoS Risk via Argparse
+
+**Vulnerability:** The argparse configuration lacked independent upper bound checks for numeric inputs (like thread counts or time limits), delegating validation entirely to inner class methods.
+**Learning:** If argparse passes out-of-bound inputs, the inner class will throw unhandled exceptions (e.g. ValueError) causing stack trace leaks and dirty exits rather than graceful failure.
+**Prevention:** Always implement independent upper bound constraints and range validations within the argparse setup (using `parser.error()`) to ensure the application exits cleanly on malicious or erroneous input.
