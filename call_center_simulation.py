@@ -119,7 +119,7 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # Optimization: Use EAFP pattern and local variable for nested dictionary operations
+        # Optimization: Use EAFP pattern (try...except KeyError) instead of LBYL (if key not in dict) and assign nested dictionary to local variable to significantly reduce execution overhead.
         try:
             stat = self.fresher_statistics[index]
             stat['counter'] += 1
