@@ -482,6 +482,10 @@ def main():
         # Run the simulation
         call_center_simulation.run_simulation()
 
+    except ValueError as e:
+        # Security Enhancement: Handle validation errors securely without leaking internal stack traces.
+        print(f"\nConfiguration error: {e}")
+        sys.exit(1)
     except KeyboardInterrupt:
         print("\nSimulation interrupted.")
 
