@@ -1,6 +1,7 @@
 ## 2026-05-17 - Avoid cryptographic rng for general simulations
 **Learning:** The codebase was using `secrets.SystemRandom().randint()` for generating call metrics (duration, waves, intervals) which is a cryptographic operation reading from system entropy (`/dev/urandom`). This adds massive overhead to rapid generation in large-scale simulation threads compared to a pseudo-random number generator.
 **Action:** Use standard `random.randint()` for statistical/simulation randomization tasks where cryptographic security is not required, resulting in up to 5-6x speedup in standalone number generation overhead.
-## 2024-05-18 - Avoid redundant generator expressions when passing an iterable directly
-**Learning:** When passing an iterable to a function that accepts iterables and lazily evaluates them (e.g. `find_free_fresher_index`), replacing a list comprehension `[not fresher.is_alive() for fresher in freshers]` with a generator expression `(fresher for fresher in freshers)` is redundant. Passing the original list `freshers` directly is simpler and cleaner.
-**Action:** Next time, analyze if the function can simply take the original iterable directly rather than wrapping it in an identity generator expression.
+
+## 2024-06-01 - Avoid eagerly evaluating thread properties in O(N) lists
+**Learning:** The simulation eagerly evaluated the thread state `fresher.is_alive()` on all 1000 fresher threads to create a boolean list in `[not fresher.is_alive() for fresher in freshers]` every time a call was processed. This introduced massive overhead compared to doing lazy checks with a short-circuit loop directly on the thread objects inside `find_free_fresher_index`. Also, `find_free_fresher_index` was specifically implemented to accept a list of thread objects and call `.is_alive()` on them, so passing booleans broke it completely.
+**Action:** When searching for an available thread object from a large collection, pass the collection directly to a helper function that iterates and calls the thread state check, relying on early returns to short-circuit the loop, instead of building full boolean arrays upfront.

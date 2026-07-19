@@ -302,7 +302,10 @@ class CallCenterSimulation:
         # Process individual calls
         for call in range(number_of_calls):
             # Find indices of free freshers, -1 if none
-            idx = find_free_fresher_index(fresher for fresher in freshers)
+            # Performance Optimization: Pass freshers list directly to find_free_fresher_index.
+            # This avoids eagerly evaluating thread states (is_alive) into an O(N) list comprehension
+            # and allows the function to efficiently short-circuit on the first free fresher.
+            idx = find_free_fresher_index(freshers)
             print(f"Call {call + 1} is on top of the queue.")
             print("----------------------")
 
