@@ -4,10 +4,8 @@
 **Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
 **Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
 
-## 2024-06-20 - Missing CLI Argument Upper Bounds
+## 2024-06-21 - Unhandled Exception / Resource Exhaustion via Unbounded CLI Args
 
-**Vulnerability:** The simulation script lacked upper bound checks on CLI arguments (e.g. number of freshers, run time, intervals) in the argparse config.
-
-**Learning:** This missing check could lead to a Resource Exhaustion (DoS) vulnerability by allowing unbounded thread creation or excessively long-running sleep/blocking operations prior to the internal bounds being checked, leading to uncaught ValueErrors.
-
-**Prevention:** Always enforce explicit upper bounds directly in the CLI parser level as well to ensure the app fails gracefully and catches invalid inputs at the boundary.
+**Vulnerability:** The CLI argument parser in `call_center_simulation.py` accepted unbound user inputs for simulation parameters like `max_calls_per_wave` and `max_call_duration`.
+**Learning:** Argument bounds and validity constraints must be verified locally at the CLI `argparse` level using `parser.error()`, even if inner classes eventually throw ValueErrors.
+**Prevention:** Always mirror or implement stricter upper bounds checking in CLI parsers to prevent unhandled exceptions and potential denial-of-service before instantiating backend classes.
