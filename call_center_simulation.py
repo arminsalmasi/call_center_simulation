@@ -119,7 +119,6 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # ⚡ Bolt: Use EAFP pattern and local variable assignment for hot loop optimization
         try:
             stats = self.fresher_statistics[index]
             stats['counter'] += 1
