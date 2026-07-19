@@ -177,15 +177,15 @@ class CallCenterSimulation:
         """
         # Security Enhancement: Validate inputs to prevent Resource Exhaustion (DoS risk)
         if not (0 < number_of_freshers <= 1000):
-            raise ValueError("number_of_freshers must be strictly positive and up to 1000")
+            raise ValueError("number_of_freshers must be between 1 and 1000")
         if run_time <= 0 or run_time > 86400:  # Max 1 day simulation
-            raise ValueError("run_time must be strictly positive and up to 86400")
+            raise ValueError("run_time must be between 1 and 86400")
         if not (0 <= min_max_calls_per_wave[0] <= min_max_calls_per_wave[1] and min_max_calls_per_wave[1] <= 10000):
             raise ValueError("Invalid min_max_calls_per_wave range")
         if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1] and min_max_sleep_interval[1] <= 86400):
             raise ValueError("Invalid min_max_sleep_interval range")
-        if not (0 < min_max_call_duration[0] <= min_max_call_duration[1]):
-            raise ValueError("Invalid min_max_call_duration range (must be strictly positive)")
+        if not (0 < min_max_call_duration[0] <= min_max_call_duration[1] and min_max_call_duration[1] <= 86400):
+            raise ValueError("Invalid min_max_call_duration range")
 
         self.number_of_freshers = number_of_freshers
         self.run_time = run_time
@@ -455,11 +455,11 @@ def main():
         # Parse the arguments
         args = parser.parse_args()
 
-        # Validate arguments bounds via CLI to ensure graceful exit
+        # Validate arguments
         if not (0 < args.number_of_freshers <= 1000):
-            parser.error("number_of_freshers must be > 0 and <= 1000")
+            parser.error("number_of_freshers must be between 1 and 1000")
         if not (0 < args.run_time <= 86400):
-            parser.error("run_time must be > 0 and <= 86400")
+            parser.error("run_time must be between 1 and 86400")
         if args.min_calls_per_wave < 0:
             parser.error("min_calls_per_wave must be non-negative")
         if args.max_calls_per_wave > 10000:
@@ -470,11 +470,11 @@ def main():
             parser.error("min_call_duration must be strictly positive")
 
         if args.min_calls_per_wave > args.max_calls_per_wave or args.max_calls_per_wave > 10000:
-            parser.error("invalid min_max_calls_per_wave range")
+            parser.error("invalid min_calls_per_wave range")
         if args.min_sleep_interval > args.max_sleep_interval or args.max_sleep_interval > 86400:
-            parser.error("invalid min_max_sleep_interval range")
+            parser.error("invalid min_sleep_interval range")
         if args.min_call_duration > args.max_call_duration or args.max_call_duration > 86400:
-            parser.error("invalid min_max_call_duration range")
+            parser.error("invalid min_call_duration range")
 
         # Set the parameters of the call center simulation
         number_of_freshers = args.number_of_freshers
