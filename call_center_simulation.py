@@ -119,7 +119,7 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # Bolt: Using EAFP (try/except) and local variables in hot loop is faster than LBYL (if not in)
+        # Optimization: Use EAFP pattern and assign nested dict to local variable for faster access
         try:
             stat = self.fresher_statistics[index]
         except KeyError:
