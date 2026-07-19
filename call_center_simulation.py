@@ -119,7 +119,7 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # ⚡ Bolt: Use EAFP pattern and local variable assignment to avoid redundant dictionary lookups in this hot path.
+        # Optimization: Use EAFP pattern and local variable assignment in hot loop
         try:
             stats = self.fresher_statistics[index]
             stats['counter'] += 1
