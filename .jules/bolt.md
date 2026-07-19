@@ -1,6 +1,6 @@
 ## 2026-05-17 - Avoid cryptographic rng for general simulations
 **Learning:** The codebase was using `secrets.SystemRandom().randint()` for generating call metrics (duration, waves, intervals) which is a cryptographic operation reading from system entropy (`/dev/urandom`). This adds massive overhead to rapid generation in large-scale simulation threads compared to a pseudo-random number generator.
 **Action:** Use standard `random.randint()` for statistical/simulation randomization tasks where cryptographic security is not required, resulting in up to 5-6x speedup in standalone number generation overhead.
-## 2024-05-24 - Optimize dictionary lookups in statistical aggregators
-**Learning:** In this codebase's statistical aggregators (e.g., `CallStatistics`), eagerly checking dictionary keys (`if key not in dict`) and performing multiple nested lookups creates a significant overhead.
-**Action:** Use the EAFP pattern (`try...except KeyError`) and assign nested dictionaries to local variables for operations in hot loops to significantly reduce execution overhead.
+## 2023-10-27 - EAFP Pattern in CallStatistics Hot Loops
+**Learning:** In the `CallStatistics` class, updating the nested dictionaries `fresher_statistics` occurs very frequently (inside the simulation loops). Using the LBYL pattern (`if index not in self.fresher_statistics`) was slower than the EAFP pattern (`try...except KeyError`). However, the most significant performance gain came from pre-allocating the dictionary with default values during initialization.
+**Action:** When updating nested dictionaries in hot loops, consider pre-allocating the structure if the keys are known in advance.

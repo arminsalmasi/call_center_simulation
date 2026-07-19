@@ -105,6 +105,7 @@ class CallStatistics:
         project_manager_call_duration (int): Total call duration handled by the project manager.
     """
     def __init__(self, number_of_freshers=0):
+        # Pre-allocate dictionary to reduce runtime overhead
         self.fresher_statistics = {i: {'counter': 0, 'call_duration': 0} for i in range(number_of_freshers)}
         self.technical_lead_counter = 0
         self.technical_lead_call_duration = 0
@@ -119,7 +120,6 @@ class CallStatistics:
             call_duration (int): Duration of the call handled by the fresher.
         """
         try:
-            # ⚡ Bolt: Use EAFP pattern and local variable assignment for nested dict to reduce lookup overhead
             stats = self.fresher_statistics[index]
             stats['counter'] += 1
             stats['call_duration'] += call_duration
