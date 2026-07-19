@@ -274,10 +274,10 @@ class OtherTest(unittest.TestCase):
         """
 
         class MockFresher:
-            def __init__(self, is_alive):
-                self._is_alive = is_alive
+            def __init__(self, alive):
+                self._alive = alive
             def is_alive(self):
-                return self._is_alive
+                return self._alive
 
         test_list = [MockFresher(True), MockFresher(True), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False), MockFresher(False)]
         self.assertEqual(find_free_fresher_index(test_list),2)
