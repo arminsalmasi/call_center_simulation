@@ -372,8 +372,7 @@ class CallCenterSimulation:
                 # Process individual calls
                 for call in range(number_of_calls):
                     # Find indices of free freshers, -1 if none
-                    # Using a generator expression instead of a list comprehension to allow lazy evaluation
-                    # of fresher.is_alive(), significantly reducing threading overhead during heavy call waves.
+                    # Use a generator expression for lazy evaluation to avoid unnecessary thread state checks
                     idx = find_free_fresher_index((not fresher.is_alive() for fresher in freshers))
                     print(f"Call {call + 1} is on top of the queue.")
                     print("----------------------")
@@ -417,7 +416,7 @@ class CallCenterSimulation:
                 if not(project_manager.is_alive()) and project_manager.was_called_before:
                         project_manager.join(timeout=2)
                 
-                # OPTIMIZATION: Use generator expression instead of list comprehension for short-circuiting
+                # Use a generator expression for short-circuiting to avoid unnecessary thread state checks
                 if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not(fresher.is_alive()) for fresher in freshers):
                     break
 
