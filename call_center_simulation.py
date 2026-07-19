@@ -84,13 +84,13 @@ def find_free_fresher_index(iterable):
     """Find an available fresher employee in the call center.
 
     Args:
-        freshers (iterable): Iterable of fresher employees.
+        freshers (iterable): Iterable of boolean values indicating whether a fresher is free.
 
     Returns:
         int: Index of the first available fresher, -1 if no freshers are available.
     """
-    for index, fresher in enumerate(iterable):
-        if not fresher.is_alive():
+    for index, fresher in enumerate(freshers):
+        if fresher:
             return index
     return -1
 
@@ -104,8 +104,8 @@ class CallStatistics:
         project_manager_counter (int): Count of calls handled by the project manager.
         project_manager_call_duration (int): Total call duration handled by the project manager.
     """
-    def __init__(self):
-        self.fresher_statistics = {}
+    def __init__(self, number_of_freshers=0):
+        self.fresher_statistics = {i: {'counter': 0, 'call_duration': 0} for i in range(number_of_freshers)}
         self.technical_lead_counter = 0
         self.technical_lead_call_duration = 0
         self.project_manager_counter = 0
@@ -118,12 +118,10 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # Optimization: use EAFP pattern and local variable assignment instead of LBYL
-        # to avoid double dictionary lookups in this hot loop
         try:
-            stat = self.fresher_statistics[index]
-            stat['counter'] += 1
-            stat['call_duration'] += call_duration
+            stats = self.fresher_statistics[index]
+            stats['counter'] += 1
+            stats['call_duration'] += call_duration
         except KeyError:
             self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
@@ -306,7 +304,7 @@ class CallCenterSimulation:
         # Process individual calls
         for call in range(number_of_calls):
             # Find indices of free freshers, -1 if none
-            idx = find_free_fresher_index(freshers)
+            idx = find_free_fresher_index(not fresher.is_alive() for fresher in freshers)
             print(f"Call {call + 1} is on top of the queue.")
             print("----------------------")
 
@@ -353,7 +351,6 @@ class CallCenterSimulation:
             if not(project_manager.is_alive()) and project_manager.was_called_before:
                     project_manager.join(timeout=2)
 
-            # Optimization: Generator expression allows all() to short-circuit, avoiding eager/blocking is_alive() checks for the entire list.
             if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not fresher.is_alive() for fresher in freshers):
                 break
 
@@ -378,7 +375,7 @@ class CallCenterSimulation:
                 # Process individual calls
                 for call in range(number_of_calls):
                     # Find indices of free freshers, -1 if none
-                    idx = find_free_fresher_index(fresher.is_alive() for fresher in freshers)
+                    idx = find_free_fresher_index(not fresher.is_alive() for fresher in freshers)
                     print(f"Call {call + 1} is on top of the queue.")
                     print("----------------------")
 
@@ -425,7 +422,7 @@ class CallCenterSimulation:
                 if not(project_manager.is_alive()) and project_manager.was_called_before:
                         project_manager.join(timeout=2)
                 
-                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and not any(fresher.is_alive() for fresher in freshers):
+                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not fresher.is_alive() for fresher in freshers):
                     break
 
             # Print call statistics
