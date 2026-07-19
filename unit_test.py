@@ -281,11 +281,11 @@ class OtherTest(unittest.TestCase):
             - If no free fresher is available, it returns -1.
         """
 
-        test_iterable = (x for x in [False, False, True, True, True, True, True, True])
+        test_iterable = [False, False, True, True, True, True, True, True]
         self.assertEqual(find_free_fresher_index(test_iterable),2)
-        test_iterable = (x for x in [False, False, False, False, False, False, False, False])
+        test_iterable = [False, False, False, False, False, False, False, False]
         self.assertEqual(find_free_fresher_index(test_iterable),-1)
-        test_iterable = (x for x in [True, True, False, False, False, False, False, False])
+        test_iterable = [True, True, False, False, False, False, False, False]
         self.assertEqual(find_free_fresher_index(test_iterable),0)
         print('find_free_fresher_index... passed\n')
         pass
