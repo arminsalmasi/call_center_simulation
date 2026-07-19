@@ -185,6 +185,7 @@ class CallCenterSimulation:
             raise ValueError("run_time must be strictly positive and not exceed 86400")
         if not (0 <= min_max_calls_per_wave[0] <= min_max_calls_per_wave[1] and min_max_calls_per_wave[1] <= 10000):
             raise ValueError("Invalid min_max_calls_per_wave range")
+        # Security Enhancement: Prevent CPU spinning DoS risk by ensuring strictly positive upper bound
         if not (0 <= min_max_sleep_interval[0] <= min_max_sleep_interval[1] and min_max_sleep_interval[1] > 0):
             raise ValueError("Invalid min_max_sleep_interval range")
         if not (0 <= min_max_call_duration[0] <= min_max_call_duration[1]):

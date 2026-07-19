@@ -4,8 +4,7 @@
 **Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
 **Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
 
-## 2024-05-24 - Zero-Sleep CPU Spinning DoS risk
-
-**Vulnerability:** The simulation allowed `min_max_sleep_interval` to be `(0, 0)`, leading to a tight `while True` loop with zero sleep time, consuming 100% CPU.
-**Learning:** Simulations with continuous loops and randomized intervals must enforce strictly positive upper bounds on wait times to prevent CPU exhaustion.
-**Prevention:** Always require a strictly positive maximum sleep interval (`max_sleep > 0`) when using it as a delay in a continuous loop.
+## 2024-05-24 - Zero-Duration Sleep Interval DoS Risk
+**Vulnerability:** The `CallCenterSimulation.set()` method allowed (0, 0) sleep intervals, leading to immediate CPU spinning.
+**Learning:** Simulation loops that rely on time intervals must explicitly validate non-zero upper bounds to prevent 100% CPU lockup and resource exhaustion.
+**Prevention:** Always enforce a strictly positive upper bound for sleep or polling intervals in unbounded simulation loops.
