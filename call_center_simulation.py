@@ -375,7 +375,8 @@ class CallCenterSimulation:
                 # Process individual calls
                 for call in range(number_of_calls):
                     # Find indices of free freshers, -1 if none
-                    # Use a generator expression for lazy evaluation to avoid unnecessary thread state checks
+                    # ⚡ Bolt: Use a generator expression for lazy evaluation.
+                    # Prevents checking `is_alive()` on all threads when an available fresher is found early.
                     idx = find_free_fresher_index((not fresher.is_alive() for fresher in freshers))
                     print(f"Call {call + 1} is on top of the queue.")
                     print("----------------------")
