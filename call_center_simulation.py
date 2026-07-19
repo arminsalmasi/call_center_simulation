@@ -118,11 +118,10 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # Bolt: Optimize hot loop dict lookups using EAFP pattern
+        # Optimization: Use EAFP (try/except) instead of LBYL (if key in dict) to avoid double lookup overhead in the hot loop
         try:
-            entry = self.fresher_statistics[index]
-            entry['counter'] += 1
-            entry['call_duration'] += call_duration
+            self.fresher_statistics[index]['counter'] += 1
+            self.fresher_statistics[index]['call_duration'] += call_duration
         except KeyError:
             self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
