@@ -354,7 +354,7 @@ class CallCenterSimulation:
             if not(project_manager.is_alive()) and project_manager.was_called_before:
                     project_manager.join(timeout=2)
 
-            # ⚡ Bolt: Use a generator expression instead of a list comprehension to avoid unnecessary memory allocation and enable short-circuiting
+            # Bolt: Optimizing performance: using generator expression instead of list comprehension inside all() to utilize short-circuiting and save memory
             if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not(fresher.is_alive()) for fresher in freshers):
                 break
 
