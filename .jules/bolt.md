@@ -1,3 +1,3 @@
-## 2024-05-23 - Thread State Evaluation Overhead
-**Learning:** In this threaded simulation, eagerly evaluating `is_alive()` on lists of thread objects using list comprehensions (`[not fresher.is_alive() for fresher in freshers]`) introduces measurable performance overhead and memory allocation, especially inside high-frequency polling/termination loops.
-**Action:** Always prefer lazy generator expressions (e.g., `not fresher.is_alive() for fresher in freshers`) when passing thread state conditions to functions like `all()`, `any()`, or custom indexing functions (`find_free_fresher_index`) to enable immediate short-circuiting and reduce unnecessary OS-level thread state checks.
+## 2024-06-25 - Avoid Eager is_alive Checks on Thread Lists
+**Learning:** Eagerly evaluating `is_alive()` on lists of thread-based objects (like freshers) inside list comprehensions introduces significant overhead, especially for long lists or when called frequently.
+**Action:** Always prefer lazy evaluation (generator expressions) and short-circuiting logic when checking the state of multiple threads (e.g., using `any()` or `all()`) to minimize unnecessary thread state checks.
