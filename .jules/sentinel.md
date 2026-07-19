@@ -1,4 +1,4 @@
-## 2024-05-23 - Missing Input Bounds Validation on DoS Vector
-**Vulnerability:** The simulation allowed negative thread bounds (`number_of_freshers`) and un-ordered/negative values for the tuple duration thresholds (`min_max_calls_per_wave`, `min_max_call_duration`), leading to deep `ValueError` crashes in `secrets` library or risking infinite loops and un-bound CPU exhaustion.
-**Learning:** Simulation systems accepting dynamic object generation and threaded sleeping states often fail to cleanly bounds-check parameters, which can be an easy DoS vector.
-**Prevention:** Always add explicit input validation (`ValueError` testing bounds, negatives, and tuple ordering) for all simulation parameters early in class constructors to fail fast and securely before utilizing resources or deferring checks to the internal random engine.
+## 2024-05-23 - Prevent thread exhaustion DoS in Call Center Simulation
+**Vulnerability:** The `CallCenterSimulation.set()` method lacked bounds checking on `number_of_freshers` and input constraints, which could lead to resource/thread exhaustion DoS.
+**Learning:** Simulations with uncontrolled parameters can cause excessive thread instantiation leading to system instability, crashing, and lack of responsiveness.
+**Prevention:** Always implement strong input validation/limits on parameters directly controlling thread creation or long-running loops.
