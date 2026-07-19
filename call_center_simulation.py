@@ -119,16 +119,14 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # Optimization: Use EAFP pattern (try/except) and local variable assignment in this hot loop
-        # to avoid double dictionary lookups present in the LBYL pattern.
+        # Bolt: Using EAFP (try/except) and local variables in hot loop is faster than LBYL (if not in)
         try:
-            stats = self.fresher_statistics[index]
+            stat = self.fresher_statistics[index]
         except KeyError:
-            stats = {'counter': 0, 'call_duration': 0}
-            self.fresher_statistics[index] = stats
-
-        stats['counter'] += 1
-        stats['call_duration'] += call_duration
+            stat = {'counter': 0, 'call_duration': 0}
+            self.fresher_statistics[index] = stat
+        stat['counter'] += 1
+        stat['call_duration'] += call_duration
 
     def add_technical_lead_call(self, call_duration):
         """Add statistics for a technical lead who handled a call.
