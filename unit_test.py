@@ -1,9 +1,8 @@
 import io
 import sys
 import unittest
-from unittest.mock import patch, MagicMock
-import sys
 import io
+from unittest.mock import patch
 from call_center_simulation import Employee, Fresher, CallStatistics, CallCenterSimulation, TechnicalLead, ProjectManager, find_free_fresher_index
 
 class EmployeeTest(unittest.TestCase):
