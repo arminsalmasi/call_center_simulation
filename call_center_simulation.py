@@ -354,7 +354,7 @@ class CallCenterSimulation:
             if not(project_manager.is_alive()) and project_manager.was_called_before:
                     project_manager.join(timeout=2)
 
-            # Optimization: Using 'not any()' with a generator expression prevents unnecessary list allocation and fully utilizes short-circuiting for thread state checks.
+            # Optimization: Using a generator expression with any() instead of all([]) short-circuits evaluation and avoids building a list of thread statuses in memory.
             if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and not any(fresher.is_alive() for fresher in freshers):
                 break
 
