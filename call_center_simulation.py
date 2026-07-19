@@ -118,8 +118,8 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # Optimize dictionary lookup: EAFP + local variable to minimize hash overhead
         try:
+            # ⚡ Bolt: Use EAFP pattern and local variable assignment for nested dict to reduce lookup overhead
             stats = self.fresher_statistics[index]
             stats['counter'] += 1
             stats['call_duration'] += call_duration
