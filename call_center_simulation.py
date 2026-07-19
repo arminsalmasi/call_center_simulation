@@ -119,13 +119,13 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # Optimize nested dict lookups using EAFP pattern and local variable reference
         try:
-            stats = self.fresher_statistics[index]
+            # ⚡ Bolt Optimization: Use EAFP and local variable for hot-loop dictionary updates
+            stat = self.fresher_statistics[index]
+            stat['counter'] += 1
+            stat['call_duration'] += call_duration
         except KeyError:
-            stats = self.fresher_statistics[index] = {'counter': 0, 'call_duration': 0}
-        stats['counter'] += 1
-        stats['call_duration'] += call_duration
+            self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
     def add_technical_lead_call(self, call_duration):
         """Add statistics for a technical lead who handled a call.
@@ -353,7 +353,7 @@ class CallCenterSimulation:
             if not(project_manager.is_alive()) and project_manager.was_called_before:
                     project_manager.join(timeout=2)
 
-            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and not any(fresher.is_alive() for fresher in freshers):
+            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not(fresher.is_alive()) for fresher in freshers):
                 break
 
     def run_simulation(self):
