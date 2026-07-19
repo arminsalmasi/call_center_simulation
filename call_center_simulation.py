@@ -119,8 +119,8 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
+        # Bolt: Used EAFP with local variable for O(1) fast-path performance
         try:
-            # ⚡ Bolt Optimization: Use EAFP and local variable for hot-loop dictionary updates
             stat = self.fresher_statistics[index]
             stat['counter'] += 1
             stat['call_duration'] += call_duration
