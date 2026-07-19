@@ -4,8 +4,8 @@
 **Learning:** Python multithreaded simulations taking user-supplied thread counts need explicit bounds checks to prevent memory exhaustion and OS process limits blocking.
 **Prevention:** Always add maximum boundaries (e.g. `<= 1000`) and valid range checks when creating lists or starting threads based on external configuration.
 
-## 2024-06-27 - Unhandled Exception DoS Risk via Argparse
+## 2024-06-27 - Argparse Input Validation and Unhandled Exception Prevention
 
-**Vulnerability:** The `argparse` configuration for `call_center_simulation.py` lacked explicit upper bound constraints, while inner classes implemented them. This mismatch allows large inputs to bypass initial CLI validation and crash the application with unhandled exceptions.
-**Learning:** In CLI applications, external boundary inputs must be validated at the exact point of entry (`argparse` blocks) to prevent unhandled exceptions and enable graceful failures.
-**Prevention:** Always mirror or strictly enforce internal business logic bounds inside the entry point's argument parser (e.g., using `parser.error()`) rather than relying on nested class initializations to throw errors.
+**Vulnerability:** The CLI implementation relied exclusively on inner class methods for explicit boundary constraint checks, which throws a generic Python Exception (like ValueError) instead of exiting cleanly with an informative message.
+**Learning:** Inner class boundary validation checks (like `if max > 86400: raise ValueError(...)`) are necessary for robustness, but if arguments are primarily supplied via `argparse`, those same boundaries should be duplicated at the CLI level using `parser.error()`. This ensures a graceful user exit (e.g. printing a standard "usage: ..." error and exiting with code 2) rather than dumping an unhandled stack trace to the user, which could potentially expose internal implementation paths.
+**Prevention:** Always ensure that `argparse` explicitly enforces the complete set of upper and lower bounds defined by the core logic.
