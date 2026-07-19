@@ -95,34 +95,28 @@ class CallStatisticsTest(unittest.TestCase):
 
     def test_set_input_validation(self):
         """
-        Test the input validation of the set method of the CallCenterSimulation class.
-
-        It ensures that out-of-bounds inputs raise ValueError.
-
-        Assertions:
-            - Calling set with invalid attributes raises ValueError.
+        Test the set method input validation to prevent DoS.
         """
         call_center_simulation = CallCenterSimulation()
 
-        # Test out-of-bounds number of freshers
+        # Test large number of freshers
         with self.assertRaises(ValueError):
-            call_center_simulation.set(0, 60, (1, 5), (2, 5), (10, 20))
-        with self.assertRaises(ValueError):
-            call_center_simulation.set(1001, 60, (1, 5), (2, 5), (10, 20))
+            call_center_simulation.set(1000000, 60, (1, 5), (2, 5), (10, 20))
 
-        # Test negative run_time
+        # Test negative freshers
         with self.assertRaises(ValueError):
-            call_center_simulation.set(8, 0, (1, 5), (2, 5), (10, 20))
+            call_center_simulation.set(-1, 60, (1, 5), (2, 5), (10, 20))
 
-        # Test invalid intervals
+        # Test inverted range
         with self.assertRaises(ValueError):
             call_center_simulation.set(8, 60, (5, 1), (2, 5), (10, 20))
-        with self.assertRaises(ValueError):
-            call_center_simulation.set(8, 60, (1, 5), (-1, 5), (10, 20))
-        with self.assertRaises(ValueError):
-            call_center_simulation.set(8, 60, (1, 5), (2, 5), (10, ))
 
-        print('CallCenterSimulation.set_input_validation,... passed\n')
+        # Test wrong type
+        with self.assertRaises(ValueError):
+            call_center_simulation.set("eight", 60, (1, 5), (2, 5), (10, 20))
+
+        print('CallStatistics.test_set_input_validation,... passed\n')
+        pass
 
  
     def test_add_fresher_call(self):

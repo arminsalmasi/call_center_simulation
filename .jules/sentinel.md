@@ -1,4 +1,4 @@
-## $(date +%Y-%m-%d) - Input Validation Missing DoS Prevention
-**Vulnerability:** Command-line inputs for simulation parameters (e.g. `min_call_duration`, `number_of_freshers`) lacked boundary and logic validation, permitting values like negative times or `min > max` ranges, leading to unhandled Python `ValueError` exceptions (from `time.sleep` and `secrets.SystemRandom().randint`).
-**Learning:** Even internal CLI tools must sanitize inputs. `argparse` alone only handles type conversion, but fails to check logic. Unchecked values crashing random/sleep functions can cause silent failures or obscure errors.
-**Prevention:** Always implement logic validation immediately after `parser.parse_args()`. Specifically, verify numerical bounds (positive values) and ranges (`min <= max`) before execution.
+## 2026-05-20 - Unbounded Inputs Causing Denial of Service
+**Vulnerability:** The `CallCenterSimulation.set()` method accepts unbounded inputs for variables such as `number_of_freshers`, leading to potential Denial of Service (DoS) attacks or severe resource exhaustion during thread creation (a `Fresher` inherits from `Thread`).
+**Learning:** Simulations initializing numerous threads or loops driven directly by unverified user input are high-risk points for systemic stability. Thread-based architectures crash fast on unbounded resource allocation.
+**Prevention:** Always enforce strict boundaries on inputs that drive resource allocations, loops, and object creation, such as capping the maximum number of instances (e.g., maximum threads).
