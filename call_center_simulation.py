@@ -104,8 +104,9 @@ class CallStatistics:
         project_manager_counter (int): Count of calls handled by the project manager.
         project_manager_call_duration (int): Total call duration handled by the project manager.
     """
-    def __init__(self, number_of_freshers=0):
-        self.fresher_statistics = {i: {'counter': 0, 'call_duration': 0} for i in range(number_of_freshers)}
+    def __init__(self, num_freshers=0):
+        # Pre-allocate dictionary for performance
+        self.fresher_statistics = {i: {'counter': 0, 'call_duration': 0} for i in range(num_freshers)}
         self.technical_lead_counter = 0
         self.technical_lead_call_duration = 0
         self.project_manager_counter = 0
@@ -118,12 +119,11 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
-        # ⚡ Bolt Optimization: Replace LBYL (`if key not in dict`) with EAFP (`try/except KeyError`).
-        # Expected Impact: Eliminates double key lookups in the hot loop, reducing dict modification overhead by ~25%.
         try:
-            stat = self.fresher_statistics[index]
-            stat['counter'] += 1
-            stat['call_duration'] += call_duration
+            # EAFP pattern with local variable assignment for hot loops
+            stats = self.fresher_statistics[index]
+            stats['counter'] += 1
+            stats['call_duration'] += call_duration
         except KeyError:
             self.fresher_statistics[index] = {'counter': 1, 'call_duration': call_duration}
 
@@ -353,7 +353,7 @@ class CallCenterSimulation:
             if not(project_manager.is_alive()) and project_manager.was_called_before:
                     project_manager.join(timeout=2)
 
-            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not(fresher.is_alive()) for fresher in freshers):
+            if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and not any(fresher.is_alive() for fresher in freshers):
                 break
 
     def run_simulation(self):
@@ -424,7 +424,7 @@ class CallCenterSimulation:
                 if not(project_manager.is_alive()) and project_manager.was_called_before:
                         project_manager.join(timeout=2)
                 
-                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and all(not fresher.is_alive() for fresher in freshers):
+                if not(technical_lead.is_alive()) and not(project_manager.is_alive()) and not any(fresher.is_alive() for fresher in freshers):
                     break
 
             # Print call statistics
