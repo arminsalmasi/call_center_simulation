@@ -118,6 +118,7 @@ class CallStatistics:
             index (int): Index of the fresher in the fresher list.
             call_duration (int): Duration of the call handled by the fresher.
         """
+        # Optimize dictionary lookups by using EAFP and local variables
         try:
             stats = self.fresher_statistics[index]
             stats['counter'] += 1
