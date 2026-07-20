@@ -102,6 +102,12 @@ button {
   color: #062015;
 }
 
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
 #stop-btn {
   background: transparent;
   color: var(--ink);
