@@ -22,6 +22,17 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 app = FastAPI(title="Call Center Simulation")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    # SECURITY: Add defense-in-depth headers to protect against XSS and clickjacking
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Content-Security-Policy"] = "default-src 'self'"
+    return response
+
+
+
 _manager_lock = __import__("threading").Lock()
 _simulation = CallCenterSimulation()
 
