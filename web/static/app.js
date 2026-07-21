@@ -22,6 +22,10 @@ function formPayload() {
 }
 
 function renderStatus(snapshot) {
+  const isRunning = snapshot.status === "running";
+  document.getElementById("start-btn").disabled = isRunning;
+  document.getElementById("stop-btn").disabled = !isRunning;
+
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
   agentsEl.innerHTML = (snapshot.agents || [])
     .map(

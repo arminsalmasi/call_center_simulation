@@ -84,6 +84,11 @@ input {
   font: inherit;
 }
 
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .actions {
   grid-column: 1 / -1;
   display: flex;
@@ -100,6 +105,20 @@ button {
   cursor: pointer;
   background: var(--accent);
   color: #062015;
+}
+
+button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 #stop-btn {
