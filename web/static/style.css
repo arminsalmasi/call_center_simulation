@@ -82,6 +82,18 @@ input {
   background: #0c1620;
   color: var(--ink);
   font: inherit;
+  transition: border-color 0.2s, outline 0.2s;
+}
+
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  border-color: var(--accent);
+  outline-offset: -1px;
+}
+
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
 }
 
 .actions {
@@ -122,6 +134,15 @@ button:disabled {
   background: transparent;
   color: var(--ink);
   border: 1px solid var(--line);
+}
+
+#stop-btn:hover {
+  background: rgba(232, 241, 245, 0.05);
+}
+
+#stop-btn:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 .status {

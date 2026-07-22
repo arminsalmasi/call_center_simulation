@@ -24,6 +24,10 @@ function formPayload() {
 }
 
 function renderStatus(snapshot) {
+  const isRunning = snapshot.status === "running";
+  document.getElementById("start-btn").disabled = isRunning;
+  document.getElementById("stop-btn").disabled = !isRunning;
+
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
 
   const isRunning = snapshot.status === "running";
@@ -38,8 +42,9 @@ function renderStatus(snapshot) {
         <span class="state ${a.state}">${a.state}</span>
         <div>calls: ${a.calls_handled}</div>
       </article>`
-    )
-    .join("");
+      )
+      .join("");
+  }
   statsEl.textContent = JSON.stringify(snapshot.stats || {}, null, 2);
 }
 
