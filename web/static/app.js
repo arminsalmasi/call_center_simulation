@@ -22,6 +22,16 @@ function formPayload() {
 }
 
 function renderStatus(snapshot) {
+  const isRunning = snapshot.status === "running";
+  const startBtn = document.getElementById("start-btn");
+  const stopBtn = document.getElementById("stop-btn");
+  if (startBtn && stopBtn) {
+    startBtn.disabled = isRunning;
+    startBtn.title = isRunning ? "Simulation is already running" : "Start a new simulation";
+    stopBtn.disabled = !isRunning;
+    stopBtn.title = !isRunning ? "No simulation is currently running" : "Stop the current simulation";
+  }
+
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
 
   const isRunning = snapshot.status === "running";
