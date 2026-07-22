@@ -91,6 +91,11 @@ input:focus-visible {
   outline-offset: -1px;
 }
 
+input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .actions {
   grid-column: 1 / -1;
   display: flex;
@@ -118,6 +123,20 @@ button:disabled {
 button:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
+}
+
+button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 #stop-btn {
