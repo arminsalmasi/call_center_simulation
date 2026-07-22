@@ -35,12 +35,18 @@ app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="stat
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
-    # SECURITY: Add standard security headers to protect against common web vulnerabilities
+    """
+    Security Enhancement: Add standard security headers to all responses.
+    - CSP mitigates XSS by restricting resource loading.
+    - X-Content-Type-Options prevents MIME-sniffing.
+    - X-Frame-Options prevents Clickjacking.
+    - Referrer-Policy protects referral info.
+    """
     response = await call_next(request)
+    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
-    response.headers["X-XSS-Protection"] = "1; mode=block"
-    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     return response
 
 _manager_lock = __import__("threading").Lock()
