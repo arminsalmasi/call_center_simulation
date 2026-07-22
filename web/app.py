@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import queue
 from pathlib import Path
@@ -31,6 +32,16 @@ async def add_security_headers(request: Request, call_next):
     return response
 
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
+
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    # SECURITY: Add standard security headers to protect against common web vulnerabilities
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    return response
 
 _manager_lock = __import__("threading").Lock()
 _simulation = CallCenterSimulation()
@@ -96,18 +107,27 @@ def stop() -> dict[str, Any]:
 
 
 @app.get("/api/simulation/events")
-def events() -> StreamingResponse:
+async def events(request: Request) -> StreamingResponse:
     sim = get_simulation()
     q = sim.event_bus.subscribe()
 
-    def generate():
+    async def generate():
         try:
             yield f"data: {json.dumps({'kind': 'connected', 'message': 'subscribed'})}\n\n"
+            keepalive_counter = 0
             while True:
+                if await request.is_disconnected():
+                    break
                 try:
-                    item = q.get(timeout=15.0)
+                    # Security: Non-blocking check with async sleep prevents thread pool exhaustion DoS
+                    item = q.get_nowait()
+                    keepalive_counter = 0
                 except queue.Empty:
-                    yield ": keepalive\n\n"
+                    await asyncio.sleep(0.5)
+                    keepalive_counter += 1
+                    if keepalive_counter >= 30: # 15 seconds
+                        yield ": keepalive\n\n"
+                        keepalive_counter = 0
                     continue
                 if item is None:
                     yield f"data: {json.dumps({'kind': 'closed', 'message': 'stream closed'})}\n\n"
