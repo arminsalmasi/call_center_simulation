@@ -3,6 +3,8 @@ const agentsEl = document.getElementById("agents");
 const statsEl = document.getElementById("stats");
 const eventLog = document.getElementById("event-log");
 const form = document.getElementById("config-form");
+const startBtn = document.getElementById("start-btn");
+const stopBtn = document.getElementById("stop-btn");
 
 function formPayload() {
   const data = new FormData(form);
@@ -26,6 +28,11 @@ function renderStatus(snapshot) {
   document.getElementById("start-btn").disabled = isRunning;
   document.getElementById("stop-btn").disabled = !isRunning;
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
+
+  const isRunning = snapshot.status === "running";
+  startBtn.disabled = isRunning;
+  stopBtn.disabled = !isRunning;
+
   agentsEl.innerHTML = (snapshot.agents || [])
     .map(
       (a) => `
@@ -34,8 +41,9 @@ function renderStatus(snapshot) {
         <span class="state ${a.state}">${a.state}</span>
         <div>calls: ${a.calls_handled}</div>
       </article>`
-    )
-    .join("");
+      )
+      .join("");
+  }
   statsEl.textContent = JSON.stringify(snapshot.stats || {}, null, 2);
 }
 
