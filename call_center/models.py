@@ -69,6 +69,9 @@ class Agent:
 
     def try_assign(self) -> int | None:
         """Assign a call if idle. Returns duration, or None if busy."""
+        # ⚡ Bolt: Fast path to avoid lock acquisition overhead for busy agents
+        if self._state is not AgentState.IDLE:
+            return None
         with self._condition:
             if self._state is not AgentState.IDLE:
                 return None
