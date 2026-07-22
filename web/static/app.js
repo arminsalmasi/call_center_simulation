@@ -3,6 +3,8 @@ const agentsEl = document.getElementById("agents");
 const statsEl = document.getElementById("stats");
 const eventLog = document.getElementById("event-log");
 const form = document.getElementById("config-form");
+const startBtn = document.getElementById("start-btn");
+const stopBtn = document.getElementById("stop-btn");
 
 function formPayload() {
   const data = new FormData(form);
@@ -29,16 +31,12 @@ function renderStatus(snapshot) {
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
 
   const isRunning = snapshot.status === "running";
-  document.getElementById("start-btn").disabled = isRunning;
-  document.getElementById("stop-btn").disabled = !isRunning;
+  startBtn.disabled = isRunning;
+  stopBtn.disabled = !isRunning;
 
-  const agents = snapshot.agents || [];
-  if (agents.length === 0) {
-    agentsEl.innerHTML = `<p class="status" style="grid-column: 1 / -1; margin-top: 0;">No agents running. Click "Start" to begin.</p>`;
-  } else {
-    agentsEl.innerHTML = agents
-      .map(
-        (a) => `
+  agentsEl.innerHTML = (snapshot.agents || [])
+    .map(
+      (a) => `
       <article class="agent">
         <div class="name">${a.name}</div>
         <span class="state ${a.state}">${a.state}</span>
