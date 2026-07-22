@@ -23,16 +23,26 @@ function formPayload() {
 
 function renderStatus(snapshot) {
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
-  agentsEl.innerHTML = (snapshot.agents || [])
-    .map(
-      (a) => `
+
+  const isRunning = snapshot.status === "running";
+  document.getElementById("start-btn").disabled = isRunning;
+  document.getElementById("stop-btn").disabled = !isRunning;
+
+  const agents = snapshot.agents || [];
+  if (agents.length === 0) {
+    agentsEl.innerHTML = `<p class="status" style="grid-column: 1 / -1; margin-top: 0;">No agents running. Click "Start" to begin.</p>`;
+  } else {
+    agentsEl.innerHTML = agents
+      .map(
+        (a) => `
       <article class="agent">
         <div class="name">${a.name}</div>
         <span class="state ${a.state}">${a.state}</span>
         <div>calls: ${a.calls_handled}</div>
       </article>`
-    )
-    .join("");
+      )
+      .join("");
+  }
   statsEl.textContent = JSON.stringify(snapshot.stats || {}, null, 2);
 }
 
