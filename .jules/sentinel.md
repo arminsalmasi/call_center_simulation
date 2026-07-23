@@ -12,3 +12,7 @@
 **Vulnerability:** Synchronous generator endpoints using `queue.get(timeout=...)` for SSE block FastAPI worker threads indefinitely, leading to unmitigated thread pool exhaustion DoS.
 **Learning:** FastAPI assigns synchronous generators to its limited thread pool. Unbounded concurrent SSE connections will consume all threads, making the server unresponsive to other synchronous requests.
 **Prevention:** Always use `async def` endpoints and asynchronous generators with non-blocking checks (e.g., `q.get_nowait()` and `await asyncio.sleep()`) for long-lived connections like SSE.
+## 2026-07-23 - FastAPI Middleware Reverse Order Execution
+**Vulnerability:** Weaker Content-Security-Policy overriding a stronger one.
+**Learning:** In FastAPI/Starlette, HTTP middlewares execute in the reverse order of their definition. Defining multiple middlewares that modify the same response headers will cause unintended overwrites, as the first-defined middleware executes last.
+**Prevention:** Consolidate all security headers into a single middleware to prevent execution order issues and unintended overwrites.
