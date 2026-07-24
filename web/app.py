@@ -32,6 +32,7 @@ async def add_security_headers(request: Request, call_next):
     - X-Content-Type-Options prevents MIME-sniffing.
     - X-Frame-Options prevents Clickjacking.
     - Referrer-Policy protects referral info.
+    - Strict-Transport-Security enforces HTTPS.
     """
     response = await call_next(request)
     response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
@@ -39,6 +40,7 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
     return response
 
 _manager_lock = __import__("threading").Lock()

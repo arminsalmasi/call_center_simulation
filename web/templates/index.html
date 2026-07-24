@@ -26,11 +26,11 @@
         <label>Call dur max <input name="max_call_duration" type="number" value="2" min="1" required aria-label="Maximum call duration" /></label>
         <label>Seed <input name="seed" type="number" value="42" aria-label="Random seed" /></label>
         <div class="actions">
-          <button type="submit" id="start-btn" aria-label="Start simulation">Start</button>
-          <button type="button" id="stop-btn" aria-label="Stop simulation" disabled>Stop</button>
+          <button type="submit" id="start-btn" aria-label="Start simulation" title="Start simulation">Start</button>
+          <button type="button" id="stop-btn" aria-label="Stop simulation" title="Simulation is stopped" disabled>Stop</button>
         </div>
       </form>
-      <p id="status-line" class="status">Status: idle</p>
+      <p id="status-line" class="status" aria-live="polite">Status: idle</p>
     </section>
 
     <section class="board" aria-label="Agent status">
