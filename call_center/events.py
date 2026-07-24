@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import collections
 import queue
 import threading
 import time
@@ -27,8 +28,9 @@ class EventBus:
         self._maxsize = maxsize
         self._lock = threading.Lock()
         self._subscribers: list[queue.Queue[SimulationEvent | None]] = []
-        self._history: list[SimulationEvent] = []
         self._history_limit = 200
+        # ⚡ Bolt: Use collections.deque for O(1) appends and automatic limit enforcement instead of list slicing
+        self._history: collections.deque[SimulationEvent] = collections.deque(maxlen=self._history_limit)
 
     def subscribe(self) -> queue.Queue[SimulationEvent | None]:
         q: queue.Queue[SimulationEvent | None] = queue.Queue(maxsize=self._maxsize)
@@ -45,8 +47,6 @@ class EventBus:
         event = SimulationEvent(kind=kind, message=message, payload=payload)
         with self._lock:
             self._history.append(event)
-            if len(self._history) > self._history_limit:
-                self._history = self._history[-self._history_limit :]
             subscribers = list(self._subscribers)
         for sub in subscribers:
             try:
@@ -73,7 +73,7 @@ class EventBus:
 
     def recent(self, limit: int = 50) -> list[dict[str, Any]]:
         with self._lock:
-            events = self._history[-limit:]
+            events = list(self._history)[-limit:]
         return [e.to_dict() for e in events]
 
     def stream(self, q: queue.Queue[SimulationEvent | None]) -> Iterator[SimulationEvent]:
