@@ -29,13 +29,16 @@ function renderStatus(snapshot) {
   document.getElementById("stop-btn").disabled = !isRunning;
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
 
-  const isRunning = snapshot.status === "running";
   startBtn.disabled = isRunning;
   stopBtn.disabled = !isRunning;
 
-  agentsEl.innerHTML = (snapshot.agents || [])
-    .map(
-      (a) => `
+  const agents = snapshot.agents || [];
+  if (agents.length === 0) {
+    agentsEl.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 2rem;">No agents currently active. Start the simulation to see agents.</div>';
+  } else {
+    agentsEl.innerHTML = agents
+      .map(
+        (a) => `
       <article class="agent">
         <div class="name">${a.name}</div>
         <span class="state ${a.state}">${a.state}</span>
