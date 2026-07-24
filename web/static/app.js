@@ -25,25 +25,25 @@ function formPayload() {
 
 function renderStatus(snapshot) {
   const isRunning = snapshot.status === "running";
-  document.getElementById("start-btn").disabled = isRunning;
-  document.getElementById("stop-btn").disabled = !isRunning;
+  startBtn.disabled = isRunning;
+  startBtn.title = isRunning ? "Simulation is already running" : "Start a new simulation";
+  stopBtn.disabled = !isRunning;
+  stopBtn.title = !isRunning ? "No simulation is currently running" : "Stop the current simulation";
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
 
-  const isRunning = snapshot.status === "running";
-  startBtn.disabled = isRunning;
-  stopBtn.disabled = !isRunning;
-
-  agentsEl.innerHTML = (snapshot.agents || [])
-    .map(
-      (a) => `
+  if (!snapshot.agents || snapshot.agents.length === 0) {
+    agentsEl.innerHTML = `<p class="status" style="grid-column: 1 / -1; margin-top: 0;">No agents active. Start a simulation to see them here.</p>`;
+  } else {
+    agentsEl.innerHTML = snapshot.agents
+      .map(
+        (a) => `
       <article class="agent">
         <div class="name">${a.name}</div>
         <span class="state ${a.state}">${a.state}</span>
         <div>calls: ${a.calls_handled}</div>
       </article>`
-      )
-      .join("");
-  }
+    )
+    .join("");
   statsEl.textContent = JSON.stringify(snapshot.stats || {}, null, 2);
 }
 
