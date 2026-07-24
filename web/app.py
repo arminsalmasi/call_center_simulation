@@ -32,7 +32,7 @@ async def add_security_headers(request: Request, call_next):
     - X-Content-Type-Options prevents MIME-sniffing.
     - X-Frame-Options prevents Clickjacking.
     - Referrer-Policy protects referral info.
-    - Strict-Transport-Security enforces secure connections.
+    - Strict-Transport-Security enforces HTTPS.
     """
     response = await call_next(request)
     response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
