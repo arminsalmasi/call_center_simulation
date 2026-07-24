@@ -42,9 +42,8 @@ function renderStatus(snapshot) {
         <span class="state ${a.state}">${a.state}</span>
         <div>calls: ${a.calls_handled}</div>
       </article>`
-      )
-      .join("");
-  }
+    )
+    .join("");
   statsEl.textContent = JSON.stringify(snapshot.stats || {}, null, 2);
 }
 
