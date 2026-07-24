@@ -6,6 +6,7 @@ import collections
 import queue
 import threading
 import time
+import collections
 from dataclasses import asdict, dataclass, field
 from typing import Any, Iterator
 
@@ -29,7 +30,7 @@ class EventBus:
         self._lock = threading.Lock()
         self._subscribers: list[queue.Queue[SimulationEvent | None]] = []
         self._history_limit = 200
-        # ⚡ Bolt: Use collections.deque for O(1) appends and automatic limit enforcement instead of list slicing
+        # ⚡ Bolt: Using deque with maxlen provides O(1) appends, avoiding O(N) list slicing overhead
         self._history: collections.deque[SimulationEvent] = collections.deque(maxlen=self._history_limit)
 
     def subscribe(self) -> queue.Queue[SimulationEvent | None]:
