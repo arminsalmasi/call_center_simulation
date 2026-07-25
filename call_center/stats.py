@@ -46,10 +46,12 @@ class CallStatistics:
 
     def snapshot(self) -> dict[str, Any]:
         with self._lock:
+            # ⚡ Bolt: Removed O(N log N) sorted() since Python dicts maintain insertion order,
+            # and dictionary is pre-allocated sequentially. Reduces snapshot overhead.
             return {
                 "freshers": {
                     str(i): dict(stats)
-                    for i, stats in sorted(self.fresher_statistics.items())
+                    for i, stats in self.fresher_statistics.items()
                 },
                 "technical_lead": {
                     "counter": self.technical_lead_counter,
