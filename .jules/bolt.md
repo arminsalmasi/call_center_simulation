@@ -7,3 +7,6 @@
 ## 2024-05-24 - EventBus O(N) History Slicing Bottleneck
 **Learning:** In this codebase, maintaining a fixed-size event history in `EventBus` (`call_center/events.py`) using list slicing (`_history[-limit:]`) creates an O(N) performance bottleneck.
 **Action:** Using `collections.deque(maxlen=limit)` resolves this by providing O(1) appends.
+## 2023-10-27 - Sequential Dictionary Insertion Order
+**Learning:** In this codebase, dictionaries pre-allocated or sequentially populated in `__init__` maintain their insertion order in Python 3.7+. Therefore, `sorted()` calls when iterating over their items (like `self.fresher_statistics.items()` in `CallStatistics.snapshot`) are redundant and create unnecessary O(n log n) overhead in serialization paths.
+**Action:** When serializing or iterating over internal dictionaries, verify if the insertion order is naturally sequential and deterministic. If so, remove defensive `sorted()` calls to achieve an O(n) performance gain.

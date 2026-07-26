@@ -49,7 +49,9 @@ class CallStatistics:
             return {
                 "freshers": {
                     str(i): dict(stats)
-                    for i, stats in sorted(self.fresher_statistics.items())
+                    # ⚡ Bolt: Removed sorted() for performance. The dictionary is sequentially
+                    # pre-allocated in __init__ and Python 3.7+ maintains insertion order.
+                    for i, stats in self.fresher_statistics.items()
                 },
                 "technical_lead": {
                     "counter": self.technical_lead_counter,
