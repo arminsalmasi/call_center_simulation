@@ -192,6 +192,15 @@ pre {
   overflow: auto;
 }
 
+#event-log:empty::after {
+  content: "No events yet. Start the simulation to see activity.";
+  display: block;
+  color: var(--muted);
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 0.4rem 0;
+}
+
 #event-log li {
   padding: 0.4rem 0;
   border-bottom: 1px solid var(--line);
