@@ -30,7 +30,7 @@ class EventBus:
         self._lock = threading.Lock()
         self._subscribers: list[queue.Queue[SimulationEvent | None]] = []
         self._history_limit = 200
-        # ⚡ Bolt: Using deque with maxlen provides O(1) appends, avoiding O(N) list slicing overhead
+        # ⚡ Bolt: Use deque for O(1) appends to maintain fixed-size event history
         self._history: collections.deque[SimulationEvent] = collections.deque(maxlen=self._history_limit)
 
     def subscribe(self) -> queue.Queue[SimulationEvent | None]:

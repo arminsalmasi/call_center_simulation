@@ -4,6 +4,6 @@
 ## 2024-05-24 - Double-Checked Locking in Agent.try_assign
 **Learning:** In this codebase, frequent lock acquisitions on busy thread-safe models (e.g., checking `self._state` inside a lock in `Agent.try_assign` in `call_center/models.py`) create severe performance bottlenecks in hot loops.
 **Action:** Applying a double-checked locking pattern (a lock-free fast-path state check before acquiring the lock) significantly reduces thread contention overhead.
-## 2024-05-24 - EventBus O(N) History Slicing Bottleneck
+## 2024-05-24 - EventBus O(N) History Bottleneck
 **Learning:** In this codebase, maintaining a fixed-size event history in `EventBus` (`call_center/events.py`) using list slicing (`_history[-limit:]`) creates an O(N) performance bottleneck.
 **Action:** Using `collections.deque(maxlen=limit)` resolves this by providing O(1) appends.
