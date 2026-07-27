@@ -26,8 +26,10 @@ function formPayload() {
 function renderStatus(snapshot) {
   const isRunning = snapshot.status === "running";
   startBtn.disabled = isRunning;
+  startBtn.textContent = "Start";
   startBtn.title = isRunning ? "Simulation is already running" : "Start a new simulation";
   stopBtn.disabled = !isRunning;
+  stopBtn.textContent = "Stop";
   stopBtn.title = !isRunning ? "No simulation is currently running" : "Stop the current simulation";
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
 
@@ -55,6 +57,8 @@ async function refresh() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  startBtn.disabled = true;
+  startBtn.textContent = "Starting...";
   const res = await fetch("/api/simulation/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -70,6 +74,8 @@ form.addEventListener("submit", async (event) => {
 });
 
 document.getElementById("stop-btn").addEventListener("click", async () => {
+  stopBtn.disabled = true;
+  stopBtn.textContent = "Stopping...";
   const res = await fetch("/api/simulation/stop", { method: "POST" });
   const data = await res.json();
   renderStatus(data.status);
