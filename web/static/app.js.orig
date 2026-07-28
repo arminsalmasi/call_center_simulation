@@ -68,8 +68,6 @@ form.addEventListener("submit", async (event) => {
   const data = await res.json();
   if (!res.ok) {
     statusLine.textContent = `Error: ${data.detail || res.statusText}`;
-    startBtn.disabled = false;
-    startBtn.textContent = "Start";
     return;
   }
   renderStatus(data.status);
