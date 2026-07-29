@@ -55,24 +55,60 @@ async function refresh() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const res = await fetch("/api/simulation/start", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formPayload()),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    statusLine.textContent = `Error: ${data.detail || res.statusText}`;
-    return;
+  const originalText = startBtn.textContent;
+  startBtn.textContent = "Starting...";
+  startBtn.disabled = true;
+  startBtn.setAttribute("aria-busy", "true");
+
+  try {
+    const res = await fetch("/api/simulation/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formPayload()),
+    });
+    const data = await res.json();
+
+    startBtn.textContent = originalText;
+    startBtn.removeAttribute("aria-busy");
+
+    if (!res.ok) {
+      statusLine.textContent = `Error: ${data.detail || res.statusText}`;
+      startBtn.disabled = false;
+      return;
+    }
+
+    // Note: renderStatus dynamically sets startBtn.disabled
+    renderStatus(data.status);
+    connectEvents();
+  } catch (err) {
+    statusLine.textContent = `Error: ${err.message}`;
+    startBtn.textContent = originalText;
+    startBtn.disabled = false;
+    startBtn.removeAttribute("aria-busy");
   }
-  renderStatus(data.status);
-  connectEvents();
 });
 
 document.getElementById("stop-btn").addEventListener("click", async () => {
-  const res = await fetch("/api/simulation/stop", { method: "POST" });
-  const data = await res.json();
-  renderStatus(data.status);
+  const originalText = stopBtn.textContent;
+  stopBtn.textContent = "Stopping...";
+  stopBtn.disabled = true;
+  stopBtn.setAttribute("aria-busy", "true");
+
+  try {
+    const res = await fetch("/api/simulation/stop", { method: "POST" });
+    const data = await res.json();
+
+    stopBtn.textContent = originalText;
+    stopBtn.removeAttribute("aria-busy");
+
+    // Note: renderStatus dynamically sets stopBtn.disabled
+    renderStatus(data.status);
+  } catch (err) {
+    statusLine.textContent = `Error: ${err.message}`;
+    stopBtn.textContent = originalText;
+    stopBtn.disabled = false;
+    stopBtn.removeAttribute("aria-busy");
+  }
 });
 
 let eventSource;
