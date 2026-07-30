@@ -44,6 +44,7 @@ function renderStatus(snapshot) {
       </article>`
     )
     .join("");
+  }
   statsEl.textContent = JSON.stringify(snapshot.stats || {}, null, 2);
 }
 
@@ -55,24 +56,39 @@ async function refresh() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const res = await fetch("/api/simulation/start", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formPayload()),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    statusLine.textContent = `Error: ${data.detail || res.statusText}`;
-    return;
+  startBtn.disabled = true;
+  const originalText = startBtn.textContent;
+  startBtn.textContent = "Starting...";
+  try {
+    const res = await fetch("/api/simulation/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formPayload()),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusLine.textContent = `Error: ${data.detail || res.statusText}`;
+      startBtn.disabled = false;
+      return;
+    }
+    renderStatus(data.status);
+    connectEvents();
+  } finally {
+    startBtn.textContent = originalText;
   }
-  renderStatus(data.status);
-  connectEvents();
 });
 
 document.getElementById("stop-btn").addEventListener("click", async () => {
-  const res = await fetch("/api/simulation/stop", { method: "POST" });
-  const data = await res.json();
-  renderStatus(data.status);
+  stopBtn.disabled = true;
+  const originalText = stopBtn.textContent;
+  stopBtn.textContent = "Stopping...";
+  try {
+    const res = await fetch("/api/simulation/stop", { method: "POST" });
+    const data = await res.json();
+    renderStatus(data.status);
+  } finally {
+    stopBtn.textContent = originalText;
+  }
 });
 
 let eventSource;
