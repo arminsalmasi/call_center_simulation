@@ -44,6 +44,7 @@ function renderStatus(snapshot) {
       </article>`
     )
     .join("");
+  }
   statsEl.textContent = JSON.stringify(snapshot.stats || {}, null, 2);
 }
 
@@ -55,13 +56,19 @@ async function refresh() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  startBtn.disabled = true;
+  startBtn.textContent = "Starting...";
+  startBtn.setAttribute("aria-busy", "true");
   const res = await fetch("/api/simulation/start", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formPayload()),
   });
   const data = await res.json();
+  startBtn.textContent = "Start";
+  startBtn.removeAttribute("aria-busy");
   if (!res.ok) {
+    startBtn.disabled = false;
     statusLine.textContent = `Error: ${data.detail || res.statusText}`;
     return;
   }
@@ -70,8 +77,13 @@ form.addEventListener("submit", async (event) => {
 });
 
 document.getElementById("stop-btn").addEventListener("click", async () => {
+  stopBtn.disabled = true;
+  stopBtn.textContent = "Stopping...";
+  stopBtn.setAttribute("aria-busy", "true");
   const res = await fetch("/api/simulation/stop", { method: "POST" });
   const data = await res.json();
+  stopBtn.textContent = "Stop";
+  stopBtn.removeAttribute("aria-busy");
   renderStatus(data.status);
 });
 
