@@ -44,6 +44,7 @@ function renderStatus(snapshot) {
       </article>`
     )
     .join("");
+  }
   statsEl.textContent = JSON.stringify(snapshot.stats || {}, null, 2);
 }
 
@@ -55,24 +56,49 @@ async function refresh() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const res = await fetch("/api/simulation/start", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formPayload()),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    statusLine.textContent = `Error: ${data.detail || res.statusText}`;
-    return;
+
+  const originalText = startBtn.textContent;
+  startBtn.textContent = "Starting...";
+  startBtn.disabled = true;
+
+  try {
+    const res = await fetch("/api/simulation/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formPayload()),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusLine.textContent = `Error: ${data.detail || res.statusText}`;
+      startBtn.textContent = originalText;
+      startBtn.disabled = false;
+      return;
+    }
+    startBtn.textContent = originalText;
+    renderStatus(data.status);
+    connectEvents();
+  } catch (error) {
+    statusLine.textContent = `Error: ${error.message}`;
+    startBtn.textContent = originalText;
+    startBtn.disabled = false;
   }
-  renderStatus(data.status);
-  connectEvents();
 });
 
 document.getElementById("stop-btn").addEventListener("click", async () => {
-  const res = await fetch("/api/simulation/stop", { method: "POST" });
-  const data = await res.json();
-  renderStatus(data.status);
+  const originalText = stopBtn.textContent;
+  stopBtn.textContent = "Stopping...";
+  stopBtn.disabled = true;
+
+  try {
+    const res = await fetch("/api/simulation/stop", { method: "POST" });
+    const data = await res.json();
+    stopBtn.textContent = originalText;
+    renderStatus(data.status);
+  } catch (error) {
+    statusLine.textContent = `Error: ${error.message}`;
+    stopBtn.textContent = originalText;
+    stopBtn.disabled = false;
+  }
 });
 
 let eventSource;
