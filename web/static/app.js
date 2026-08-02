@@ -55,24 +55,51 @@ async function refresh() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const res = await fetch("/api/simulation/start", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formPayload()),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    statusLine.textContent = `Error: ${data.detail || res.statusText}`;
-    return;
+
+  const originalText = startBtn.textContent;
+  startBtn.disabled = true;
+  startBtn.textContent = "Starting...";
+  statusLine.textContent = "Status: starting...";
+
+  try {
+    const res = await fetch("/api/simulation/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formPayload()),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusLine.textContent = `Error: ${data.detail || res.statusText}`;
+      startBtn.disabled = false;
+      startBtn.textContent = originalText;
+      return;
+    }
+    startBtn.textContent = originalText;
+    renderStatus(data.status);
+    connectEvents();
+  } catch (error) {
+    statusLine.textContent = `Error: ${error.message}`;
+    startBtn.disabled = false;
+    startBtn.textContent = originalText;
   }
-  renderStatus(data.status);
-  connectEvents();
 });
 
 document.getElementById("stop-btn").addEventListener("click", async () => {
-  const res = await fetch("/api/simulation/stop", { method: "POST" });
-  const data = await res.json();
-  renderStatus(data.status);
+  const originalText = stopBtn.textContent;
+  stopBtn.disabled = true;
+  stopBtn.textContent = "Stopping...";
+  statusLine.textContent = "Status: stopping...";
+
+  try {
+    const res = await fetch("/api/simulation/stop", { method: "POST" });
+    const data = await res.json();
+    stopBtn.textContent = originalText;
+    renderStatus(data.status);
+  } catch (error) {
+    statusLine.textContent = `Error: ${error.message}`;
+    stopBtn.disabled = false;
+    stopBtn.textContent = originalText;
+  }
 });
 
 let eventSource;
