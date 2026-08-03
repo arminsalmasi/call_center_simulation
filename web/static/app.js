@@ -44,6 +44,7 @@ function renderStatus(snapshot) {
       </article>`
     )
     .join("");
+  }
   statsEl.textContent = JSON.stringify(snapshot.stats || {}, null, 2);
 }
 
@@ -55,16 +56,34 @@ async function refresh() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const res = await fetch("/api/simulation/start", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formPayload()),
-  });
+  const originalText = startBtn.textContent;
+  startBtn.textContent = "Starting...";
+  startBtn.disabled = true;
+  startBtn.setAttribute("aria-busy", "true");
+  let res;
+  try {
+    res = await fetch("/api/simulation/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formPayload()),
+    });
+  } catch (err) {
+    statusLine.textContent = `Error: ${err.message}`;
+    startBtn.textContent = originalText;
+    startBtn.disabled = false;
+    startBtn.removeAttribute("aria-busy");
+    return;
+  }
   const data = await res.json();
   if (!res.ok) {
     statusLine.textContent = `Error: ${data.detail || res.statusText}`;
+    startBtn.textContent = originalText;
+    startBtn.disabled = false;
+    startBtn.removeAttribute("aria-busy");
     return;
   }
+  startBtn.textContent = originalText;
+  startBtn.removeAttribute("aria-busy");
   renderStatus(data.status);
   connectEvents();
 });
