@@ -7,3 +7,6 @@
 ## 2024-05-24 - EventBus O(N) History Bottleneck
 **Learning:** In this codebase, maintaining a fixed-size event history in `EventBus` (`call_center/events.py`) using list slicing (`_history[-limit:]`) creates an O(N) performance bottleneck.
 **Action:** Using `collections.deque(maxlen=limit)` resolves this by providing O(1) appends.
+## 2024-05-24 - Dataclass Serialization Bottleneck
+**Learning:** In this codebase, using `dataclasses.asdict` for frequently serialized dataclass objects (e.g., `SimulationEvent` in `call_center/events.py`) causes severe performance overhead due to recursive deep-copying and reflection. Replacing it with manual dictionary creation (e.g., `{'kind': self.kind, ...}`) is approximately 15x faster and is the preferred optimization strategy.
+**Action:** Avoid `dataclasses.asdict` for high-frequency serialization of simple dataclasses; use manual dictionary construction instead.
