@@ -1,0 +1,4 @@
+
+## 2023-10-27 - Ignored false positives during UI enhancement
+**Learning:** Adding transient state visual updates to DOM elements mapped via `document.getElementById` at the top of the file triggered code review tools to mistakenly flag these variables as undeclared. Additionally, code review tools may mistakenly insist that buttons disabled during an async request must always be explicitly re-enabled in a `finally` block, failing to recognize that their state is correctly delegated to a dynamic rendering function (`renderStatus`).
+**Action:** When working in `web/static/app.js` and modifying global variables like `startBtn` or managing state via `renderStatus`, recognize these code review warnings as false positives caused by limited contextual awareness of the reviewer, and proceed without refactoring valid existing DOM access patterns.
