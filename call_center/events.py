@@ -19,7 +19,13 @@ class SimulationEvent:
     timestamp: float = field(default_factory=time.time)
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        # ⚡ Bolt: Avoid dataclasses.asdict recursive deep-copy overhead
+        return {
+            "kind": self.kind,
+            "message": self.message,
+            "payload": self.payload,
+            "timestamp": self.timestamp,
+        }
 
 
 class EventBus:
