@@ -1,0 +1,3 @@
+## 2024-05-18 - Transient Button State vs Global State
+**Learning:** In apps where long-polling or SSE dictate button states globally (e.g. enabling/disabling based on API `status` property), setting transient UI state like `Starting...` immediately upon form submit requires careful handling to ensure it correctly falls back or allows the global status refresh to overwrite it seamlessly, without race conditions where a fast background poll wipes out the transient loading text before the actual user request resolves.
+**Action:** When adding transient loading states to inputs driven by backend polling, temporarily decouple or pause the global listener, or allow the explicit `fetch` resolution to fully restore the state prior to letting the global poller resume its logic.
