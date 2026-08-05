@@ -16,3 +16,8 @@
 **Vulnerability:** Defining multiple HTTP middlewares in FastAPI that attempt to modify the same response headers will cause unintentional overwriting, as the first-defined middleware executes last. This can inadvertently weaken security rules, such as replacing a strict Content-Security-Policy with a more permissive one.
 **Learning:** In FastAPI/Starlette, HTTP middlewares execute in the reverse order of their definition. Multiple middlewares affecting the same state (like headers) must be consolidated into a single middleware or carefully ordered to prevent regressions.
 **Prevention:** Always consolidate security header additions into a single middleware function to ensure strict policies are applied and not silently overwritten by later executions.
+## 2025-02-27 - Permissive CSP for inline scripts
+
+**Vulnerability:** The Content-Security-Policy header for the frontend application unnecessarily permitted inline scripts (`script-src 'unsafe-inline'`), increasing the risk of Cross-Site Scripting (XSS) attacks.
+**Learning:** The frontend does not utilize inline scripts, which allows for a stricter `script-src 'self'` policy. This architectural trait should be leveraged to maintain a strong defense-in-depth posture against XSS.
+**Prevention:** When implementing or reviewing CSP headers in applications that do not require inline scripts, always restrict `script-src` to `'self'` or explicit sources. Regularly review security headers to ensure they align with the application's actual resource requirements.
