@@ -23,6 +23,14 @@ function formPayload() {
   };
 }
 
+const escapeHtml = (unsafe) =>
+  String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
 function renderStatus(snapshot) {
   const isRunning = snapshot.status === "running";
   startBtn.disabled = isRunning;
@@ -38,8 +46,8 @@ function renderStatus(snapshot) {
       .map(
         (a) => `
       <article class="agent">
-        <div class="name">${a.name}</div>
-        <span class="state ${a.state}">${a.state}</span>
+        <div class="name">${escapeHtml(a.name)}</div>
+        <span class="state ${escapeHtml(a.state)}">${escapeHtml(a.state)}</span>
         <div>calls: ${a.calls_handled}</div>
       </article>`
     )
