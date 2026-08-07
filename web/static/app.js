@@ -55,18 +55,35 @@ async function refresh() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const res = await fetch("/api/simulation/start", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formPayload()),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    statusLine.textContent = `Error: ${data.detail || res.statusText}`;
-    return;
+
+  const originalText = startBtn.textContent;
+  startBtn.textContent = "Starting...";
+  startBtn.disabled = true;
+  form.querySelectorAll("input").forEach(i => i.disabled = true);
+
+  try {
+    const res = await fetch("/api/simulation/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formPayload()),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      statusLine.textContent = `Error: ${data.detail || res.statusText}`;
+      // Re-enable manually on HTTP error since renderStatus isn't called
+      startBtn.disabled = false;
+      return;
+    }
+    renderStatus(data.status);
+    connectEvents();
+  } catch (error) {
+    statusLine.textContent = `Error: ${error.message}`;
+    // Re-enable manually on network error
+    startBtn.disabled = false;
+  } finally {
+    startBtn.textContent = originalText;
+    form.querySelectorAll("input").forEach(i => i.disabled = false);
   }
-  renderStatus(data.status);
-  connectEvents();
 });
 
 document.getElementById("stop-btn").addEventListener("click", async () => {
