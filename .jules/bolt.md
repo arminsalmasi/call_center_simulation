@@ -7,3 +7,6 @@
 ## 2024-05-24 - EventBus O(N) History Bottleneck
 **Learning:** In this codebase, maintaining a fixed-size event history in `EventBus` (`call_center/events.py`) using list slicing (`_history[-limit:]`) creates an O(N) performance bottleneck.
 **Action:** Using `collections.deque(maxlen=limit)` resolves this by providing O(1) appends.
+## 2024-05-24 - Inline fast-path state checks in Router loop
+**Learning:** In this codebase, even with double-checked locking inside `Agent.try_assign`, invoking it thousands of times across hundreds of busy agents in `Router.route_call` creates overhead due to function calls and variable passing.
+**Action:** Inline the lock-free fast-path state check (`fresher._state is AgentState.IDLE`) directly inside the router loop to bypass function call overhead entirely for busy agents.
