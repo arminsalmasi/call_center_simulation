@@ -1,0 +1,3 @@
+## 2024-06-25 - Robust Loading States for Transient API Requests
+**Learning:** When managing loading states for asynchronous API requests that update global status (e.g., via a rendering function), it is crucial to handle early network exceptions (e.g., in a `catch` block) by manually restoring UI elements. Otherwise, network failures that prevent the normal execution flow can leave elements permanently disabled, degrading the UX.
+**Action:** Always include a `try...catch` block when explicitly managing loading states to guarantee elements are re-enabled and restored to their original text if an exception occurs before standard rendering functions take over.
