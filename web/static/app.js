@@ -6,6 +6,15 @@ const form = document.getElementById("config-form");
 const startBtn = document.getElementById("start-btn");
 const stopBtn = document.getElementById("stop-btn");
 
+function escapeHtml(unsafe) {
+    return String(unsafe)
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}
+
 function formPayload() {
   const data = new FormData(form);
   const num = (name) => Number(data.get(name));
@@ -38,9 +47,9 @@ function renderStatus(snapshot) {
       .map(
         (a) => `
       <article class="agent">
-        <div class="name">${a.name}</div>
-        <span class="state ${a.state}">${a.state}</span>
-        <div>calls: ${a.calls_handled}</div>
+        <div class="name">${escapeHtml(a.name)}</div>
+        <span class="state ${escapeHtml(a.state)}">${escapeHtml(a.state)}</span>
+        <div>calls: ${escapeHtml(a.calls_handled)}</div>
       </article>`
     )
     .join("");
