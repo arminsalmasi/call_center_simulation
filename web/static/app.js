@@ -29,6 +29,13 @@ function renderStatus(snapshot) {
   startBtn.title = isRunning ? "Simulation is already running" : "Start a new simulation";
   stopBtn.disabled = !isRunning;
   stopBtn.title = !isRunning ? "No simulation is currently running" : "Stop the current simulation";
+
+  const inputs = form.querySelectorAll("input");
+  inputs.forEach(input => {
+    input.disabled = isRunning;
+    input.title = isRunning ? "Stop the simulation to edit parameters" : "";
+  });
+
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
 
   if (!snapshot.agents || snapshot.agents.length === 0) {

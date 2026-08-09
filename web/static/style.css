@@ -121,7 +121,8 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-button:disabled {
+button:disabled,
+input:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
