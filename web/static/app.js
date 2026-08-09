@@ -25,9 +25,15 @@ function formPayload() {
 
 function renderStatus(snapshot) {
   const isRunning = snapshot.status === "running";
-  startBtn.disabled = isRunning;
+
+  if (!startBtn.textContent.includes("Starting")) {
+    startBtn.disabled = isRunning;
+  }
+  if (!stopBtn.textContent.includes("Stopping")) {
+    stopBtn.disabled = !isRunning;
+  }
+
   startBtn.title = isRunning ? "Simulation is already running" : "Start a new simulation";
-  stopBtn.disabled = !isRunning;
   stopBtn.title = !isRunning ? "No simulation is currently running" : "Stop the current simulation";
   statusLine.textContent = `Status: ${snapshot.status} · loop ${snapshot.loop || 0}`;
 
@@ -55,24 +61,49 @@ async function refresh() {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const res = await fetch("/api/simulation/start", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formPayload()),
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    statusLine.textContent = `Error: ${data.detail || res.statusText}`;
-    return;
+
+  startBtn.textContent = "Starting…";
+  startBtn.disabled = true;
+
+  try {
+    const res = await fetch("/api/simulation/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formPayload()),
+    });
+    const data = await res.json();
+
+    startBtn.textContent = "Start";
+
+    if (!res.ok) {
+      statusLine.textContent = `Error: ${data.detail || res.statusText}`;
+      startBtn.disabled = false;
+      return;
+    }
+    renderStatus(data.status);
+    connectEvents();
+  } catch (error) {
+    statusLine.textContent = `Error: Network failure`;
+    startBtn.textContent = "Start";
+    startBtn.disabled = false;
   }
-  renderStatus(data.status);
-  connectEvents();
 });
 
 document.getElementById("stop-btn").addEventListener("click", async () => {
-  const res = await fetch("/api/simulation/stop", { method: "POST" });
-  const data = await res.json();
-  renderStatus(data.status);
+  stopBtn.textContent = "Stopping…";
+  stopBtn.disabled = true;
+
+  try {
+    const res = await fetch("/api/simulation/stop", { method: "POST" });
+    const data = await res.json();
+
+    stopBtn.textContent = "Stop";
+    renderStatus(data.status);
+  } catch (error) {
+    statusLine.textContent = `Error: Network failure`;
+    stopBtn.textContent = "Stop";
+    stopBtn.disabled = false;
+  }
 });
 
 let eventSource;
