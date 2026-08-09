@@ -82,6 +82,10 @@ function connectEvents() {
   }
   eventSource = new EventSource("/api/simulation/events");
   eventSource.onmessage = (msg) => {
+    const emptyMsg = document.getElementById("empty-events");
+    if (emptyMsg) {
+      emptyMsg.remove();
+    }
     const data = JSON.parse(msg.data);
     const li = document.createElement("li");
     li.textContent = `[${data.kind}] ${data.message || ""}`;
