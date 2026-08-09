@@ -16,3 +16,7 @@
 **Vulnerability:** Defining multiple HTTP middlewares in FastAPI that attempt to modify the same response headers will cause unintentional overwriting, as the first-defined middleware executes last. This can inadvertently weaken security rules, such as replacing a strict Content-Security-Policy with a more permissive one.
 **Learning:** In FastAPI/Starlette, HTTP middlewares execute in the reverse order of their definition. Multiple middlewares affecting the same state (like headers) must be consolidated into a single middleware or carefully ordered to prevent regressions.
 **Prevention:** Always consolidate security header additions into a single middleware function to ensure strict policies are applied and not silently overwritten by later executions.
+## 2024-05-24 - Prevent XSS in dynamic frontend DOM injection
+**Vulnerability:** DOM-based XSS vulnerability risk due to directly interpolating backend object fields (e.g., agent names and states) into `innerHTML` strings without HTML sanitization.
+**Learning:** Even when backend data source values are currently hardcoded or strictly controlled, defense-in-depth requires explicit frontend sanitization before DOM insertion to prevent future injections if the data origin changes to include untrusted user input.
+**Prevention:** Always implement and enforce string coercion and explicit HTML entity encoding (`escapeHtml`) when dynamically rendering object properties via `innerHTML`, rather than assuming the API response is intrinsically safe.
